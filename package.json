@@ -21,5 +21,8 @@
   "bugs": {
     "url": "https://github.com/Musicoll/kiwi-node-server/issues"
   },
-  "homepage": "https://github.com/Musicoll/kiwi-node-server#readme"
+  "homepage": "https://github.com/Musicoll/kiwi-node-server#readme",
+  "dependencies": {
+    "express": "^4.14.1"
+  }
 }
