@@ -1,0 +1,25 @@
+{
+  "name": "kiwi-node-server",
+  "version": "1.0.0",
+  "description": "Node.js server for Kiwi app",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Musicoll/kiwi-node-server.git"
+  },
+  "keywords": [
+    "server",
+    "api",
+    "rest"
+  ],
+  "author": "Eliott Paris, Jean Millot, Pierre Guillot",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/Musicoll/kiwi-node-server/issues"
+  },
+  "homepage": "https://github.com/Musicoll/kiwi-node-server#readme"
+}
