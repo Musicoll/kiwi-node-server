@@ -23,6 +23,7 @@
   },
   "homepage": "https://github.com/Musicoll/kiwi-node-server#readme",
   "dependencies": {
+    "ejs": "^2.5.6",
     "express": "^4.14.1"
   }
 }
