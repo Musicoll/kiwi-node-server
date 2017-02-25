@@ -1,6 +1,25 @@
 # kiwi-node-server
 kiwi node.js server
 
+## installation
+
+To use this repository you'll need to have these dependencies installed :
+ - Node.js
+ - MongoDB
+ - npm
+
+clone this repository then type:
+
+```shell
+npm install
+```
+
+to run the server type:
+
+```shell
+npm start
+```
+
 
 ## Kiwi REST API
 
