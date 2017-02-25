@@ -8,16 +8,17 @@ To use this repository you'll need to have these dependencies installed :
  - MongoDB
  - npm
 
-clone this repository then type:
+clone this repository then:
 
 ```shell
-npm install
-```
+# install node package dependencies
+$ npm install
 
-to run the server type:
+# start mongoDB
+$ mongo
 
-```shell
-npm start
+# start the server
+$ npm start
 ```
 
 
