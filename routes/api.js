@@ -23,10 +23,10 @@ patcher.save(function(err) {
  * @param {String} message - the error message
  * @return {Number} status - the error code to set
  */
-let sendJsonError = (response, message = "", status = 404) => {
+let sendJsonError = (response, message = "An error occured !", status = 404) => {
   response
   .status(404)
-  .json({"error" : true, "message" : "Error fetching documents"});
+  .json({"error" : true, "message" : message});
 }
 
 // GET /
@@ -98,6 +98,11 @@ router.put('/documents/:id', (req, res, next) => {
       sendJsonError(res, "Error fetching document to update", 404);
     });
 
+});
+
+// Send an invalid api path error message for all other routes
+router.all('/*', (req, res, next) => {
+  sendJsonError(res, "Invalid api path !", 404);
 });
 
 module.exports = router;
