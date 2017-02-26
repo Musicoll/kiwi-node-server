@@ -17,50 +17,87 @@ patcher.save(function(err) {
 });
 */
 
-/* GET api home message. */
+/**
+ * Send the response formatted with a json error and an error status set
+ * @param {Object} response - the http response object
+ * @param {String} message - the error message
+ * @return {Number} status - the error code to set
+ */
+let sendJsonError = (response, message = "", status = 404) => {
+  response
+  .status(404)
+  .json({"error" : true, "message" : "Error fetching documents"});
+}
+
+// GET /
 router.get('/', (req, res, next) => {
-  res.json({message: "Welcome to the Kiwi API !"})
+  res.json({
+    "documents_url" : "/documents"
+    "document_url" : "/documents/:id"
+  })
 });
 
 // GET /documents
 router.get('/documents', (req, res) => {
+
   // Find all data in the PatcherDocument collection
-  PatcherDocument.find((err, patchers) => {
-    if (err) return console.error(err);
-    res.json(patchers)
-  });
+  PatcherDocument.find()
+    .then((patchers) => { res.json(patchers) })
+    .catch((err) => {
+      sendJsonError(res, "Error fetching documents", 404);
+    });
+
 });
 
 // POST /documents
 router.post('/documents', (req, res) => {
-  PatcherDocument.create(req.body, function (err, patcher) {
-    if (err) return next(err);
-    res.json(patcher);
-  });
+
+  PatcherDocument.create(req.body)
+    .then((patcher) => { res.json(patcher); })
+    .catch((err) => {
+      sendJsonError(res, "Error creating document", 500);
+    });
+
 });
 
 // GET /documents/:id
-router.get('/documents/:id', (req, res, next) => {
-  PatcherDocument.findById(req.params.id, (err, patcher) => {
-    if (err) return next(err);
-    res.json(patcher);
-  });
+router.get('/documents/:id', (req, res) => {
+
+  PatcherDocument.findById(req.params.id)
+    .then((patcher) => { res.json(patcher) })
+    .catch((err) => {
+      sendJsonError(res, "Error fetching document", 404);
+    });
+
 });
 
 // DELETE /documents/:id
 router.delete('/documents/:id', (req, res, next) => {
-  PatcherDocument.findByIdAndRemove(req.params.id, req.body, (err, patcher) => {
-    if (err) return next(err);
-    res.json(patcher);
-  });
+
+  // Todo: return an error when deleting a document already deleted
+  // for now this returns a success message :(
+
+  PatcherDocument.findByIdAndRemove(req.params.id)
+    .then((patcher) => {
+      res.json({"error" : false, "message" : "document " + req.params.id + " deleted"});
+    })
+    .catch((err) => {
+      sendJsonError(res, "Error fetching document to delete", 404);
+    });
+
 });
 
 // PUT /documents/:id
 router.put('/documents/:id', (req, res, next) => {
-  PatcherDocument.findByIdAndUpdate(req.params.id, req.body, (err, patcher) => {
-    if (err) return next(err);
-    res.json(patcher);
-  });
+
+  PatcherDocument.findByIdAndUpdate(req.params.id, req.body)
+    .then((patcher) => {
+      res.json({"error" : false, "message" : "document " + req.params.id + " updated"});
+    })
+    .catch((err) => {
+      sendJsonError(res, "Error fetching document to update", 404);
+    });
+
 });
 
 module.exports = router;
