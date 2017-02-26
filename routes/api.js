@@ -18,14 +18,14 @@ patcher.save(function(err) {
 */
 
 /* GET api home message. */
-router.get('/', function(req, res, next) {
+router.get('/', (req, res, next) => {
   res.json({message: "Welcome to the Kiwi API !"})
 });
 
 // GET /documents
 router.get('/documents', (req, res) => {
   // Find all data in the PatcherDocument collection
-  PatcherDocument.find(function (err, patchers) {
+  PatcherDocument.find((err, patchers) => {
     if (err) return console.error(err);
     res.json(patchers)
   });
@@ -41,7 +41,7 @@ router.post('/documents', (req, res) => {
 
 // GET /documents/:id
 router.get('/documents/:id', (req, res, next) => {
-  PatcherDocument.findById(req.params.id, function (err, patcher) {
+  PatcherDocument.findById(req.params.id, (err, patcher) => {
     if (err) return next(err);
     res.json(patcher);
   });
@@ -50,6 +50,14 @@ router.get('/documents/:id', (req, res, next) => {
 // DELETE /documents/:id
 router.delete('/documents/:id', (req, res, next) => {
   PatcherDocument.findByIdAndRemove(req.params.id, req.body, (err, patcher) => {
+    if (err) return next(err);
+    res.json(patcher);
+  });
+});
+
+// PUT /documents/:id
+router.put('/documents/:id', (req, res, next) => {
+  PatcherDocument.findByIdAndUpdate(req.params.id, req.body, (err, patcher) => {
     if (err) return next(err);
     res.json(patcher);
   });
