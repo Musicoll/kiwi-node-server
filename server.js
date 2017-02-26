@@ -25,8 +25,8 @@ let indexRoute = require('./routes/index');
 app.use('/', indexRoute);
 
 // API route
-let ApiRoute = require('./routes/api');
-app.use('/api', ApiRoute);
+let apiRoute = require('./routes/api');
+app.use('/api', apiRoute);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

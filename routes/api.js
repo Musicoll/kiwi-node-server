@@ -22,18 +22,22 @@ router.get('/', function(req, res, next) {
   res.json({message: "Welcome to the Kiwi API !"})
 });
 
+// GET /documents
 router.get('/documents', (req, res) => {
   // Find all data in the PatcherDocument collection
   PatcherDocument.find(function (err, patchers) {
     if (err) return console.error(err);
     res.json(patchers)
   });
-})
+});
 
-// api endpoint
-router.post('/documents', (request, res) => {
-
-})
+// POST /documents
+router.post('/documents', (req, res) => {
+  PatcherDocument.create(req.body, function (err, patcher) {
+    if (err) return next(err);
+    res.json(patcher);
+  });
+});
 
 // GET /documents/id
 router.get('/documents/:id', (req, res, next) => {
