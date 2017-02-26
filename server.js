@@ -1,4 +1,5 @@
 let express = require('express');
+let bodyParser = require('body-parser');
 const port = 8080;
 
 // Load mongoose package
@@ -13,6 +14,9 @@ mongoose.connect('mongodb://localhost/KiwiAPI')
   .catch((err) => console.error('DataBase connection error: ' + err));
 
 let app = express();
+
+app.use(bodyParser.json()); // for parsing application/json
+app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 
 // set the view engine
 app.set('view engine', 'ejs')
