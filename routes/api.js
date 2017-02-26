@@ -22,19 +22,25 @@ router.get('/', function(req, res, next) {
   res.json({message: "Welcome to the Kiwi API !"})
 });
 
-router.get('/documents', (request, response) => {
-
+router.get('/documents', (req, res) => {
   // Find all data in the PatcherDocument collection
   PatcherDocument.find(function (err, patchers) {
     if (err) return console.error(err);
-    response.json(patchers)
+    res.json(patchers)
   });
-
 })
 
 // api endpoint
-router.post('/documents', (request, response) => {
+router.post('/documents', (request, res) => {
 
 })
+
+// GET /documents/id
+router.get('/documents/:id', (req, res, next) => {
+  PatcherDocument.findById(req.params.id, function (err, patcher) {
+    if (err) return next(err);
+    res.json(patcher);
+  });
+});
 
 module.exports = router;

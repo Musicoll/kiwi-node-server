@@ -29,7 +29,7 @@ $ npm start
 | /api               | **GET**     | display API routes                      | :white_check_mark: |
 | /api/documents     | **GET**     | Get all the documents                   | :white_check_mark: |
 | /api/documents     | **POST**    | Create a new document                   | :no_entry:         |
-| /api/documents/:id | **GET**     | Get informations about a given document | :no_entry:         |
+| /api/documents/:id | **GET**     | Get informations about a given document | :white_check_mark: |
 | /api/documents/:id | **DELETE**  | Delete a document with a given id       | :no_entry:         |
 | /api/documents/:id | **PUT**     | Update a document with a given id       | :no_entry:         |
 | /api/users         | **GET**     | Get all the users                       | :no_entry:         |
