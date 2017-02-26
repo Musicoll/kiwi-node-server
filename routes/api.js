@@ -32,7 +32,7 @@ let sendJsonError = (response, message = "", status = 404) => {
 // GET /
 router.get('/', (req, res, next) => {
   res.json({
-    "documents_url" : "/documents"
+    "documents_url" : "/documents",
     "document_url" : "/documents/:id"
   })
 });
