@@ -30,7 +30,7 @@ $ npm start
 | /api/documents     | **GET**     | Get all the documents                   | :white_check_mark: |
 | /api/documents     | **POST**    | Create a new document                   | :white_check_mark: |
 | /api/documents/:id | **GET**     | Get informations about a given document | :white_check_mark: |
-| /api/documents/:id | **DELETE**  | Delete a document with a given id       | :no_entry:         |
+| /api/documents/:id | **DELETE**  | Delete a document with a given id       | :white_check_mark: |
 | /api/documents/:id | **PUT**     | Update a document with a given id       | :no_entry:         |
 | /api/users         | **GET**     | Get all the users                       | :no_entry:         |
 | /api/users         | **POST**    | Create a new user                       | :no_entry:         |

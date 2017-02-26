@@ -39,9 +39,17 @@ router.post('/documents', (req, res) => {
   });
 });
 
-// GET /documents/id
+// GET /documents/:id
 router.get('/documents/:id', (req, res, next) => {
   PatcherDocument.findById(req.params.id, function (err, patcher) {
+    if (err) return next(err);
+    res.json(patcher);
+  });
+});
+
+// DELETE /documents/:id
+router.delete('/documents/:id', (req, res, next) => {
+  PatcherDocument.findByIdAndRemove(req.params.id, req.body, (err, patcher) => {
     if (err) return next(err);
     res.json(patcher);
   });
