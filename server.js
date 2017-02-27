@@ -32,11 +32,11 @@ app.use('/', indexRoute);
 let apiRoute = require('./routes/api');
 app.use('/api', apiRoute);
 
-// catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  var err = new Error('Not Found');
-  err.status = 404;
-  next(err);
+// GET a 404 error page for all other routes
+app.all('/*', function(request, response, next) {
+  response
+  .status(404)
+  .render('pages/error404', {title: 'Page not found'})
 });
 
 let server = app.listen(port, function () {
