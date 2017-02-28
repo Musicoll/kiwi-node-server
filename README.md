@@ -24,7 +24,7 @@ $ npm start
 
 ## Kiwi REST API
 
-| Route              | HTTP Method |               Description               | Status             |
+| Route              | HTTP Method |               Description               | Route status       |
 |--------------------|:-----------:|:---------------------------------------:|--------------------|
 | /api               | **GET**     | display API routes                      | :white_check_mark: |
 | /api/documents     | **GET**     | Get all the documents                   | :white_check_mark: |
@@ -32,8 +32,8 @@ $ npm start
 | /api/documents/:id | **GET**     | Get informations about a given document | :white_check_mark: |
 | /api/documents/:id | **DELETE**  | Delete a document with a given id       | :white_check_mark: |
 | /api/documents/:id | **PUT**     | Update a document with a given id       | :white_check_mark: |
-| /api/users         | **GET**     | Get all the users                       | :no_entry:         |
-| /api/users         | **POST**    | Create a new user                       | :no_entry:         |
-| /api/user/:id      | **GET**     | Get informations about a given user     | :no_entry:         |
-| /api/user/:id      | **PUT**     | Update user informations                | :no_entry:         |
-| /api/user/:id      | **DELETE**  | Delete a user with a given id           | :no_entry:         |
+| /api/users         | **GET**     | Get all the users                       | :white_check_mark: |
+| /api/users         | **POST**    | Create a new user                       | :white_check_mark: |
+| /api/user/:id      | **GET**     | Get informations about a given user     | :white_check_mark: |
+| /api/user/:id      | **PUT**     | Update user informations                | :white_check_mark: |
+| /api/user/:id      | **DELETE**  | Delete a user with a given id           | :white_check_mark: |

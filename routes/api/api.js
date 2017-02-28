@@ -1,24 +1,26 @@
 let express = require('express');
 let router = express.Router();
-
-// load documents routes
-let documentsRoutes = require('./documents');
+let utils = require('./utils');
 
 // GET /
 router.get('/', (req, res, next) => {
   res.json({
+    "users_url" : "/users",
+    "user_url" : "/users/:id",
     "documents_url" : "/documents",
     "document_url" : "/documents/:id"
   })
 });
 
-router.use('/documents', documentsRoutes);
+// documents endpoints
+router.use('/documents', require('./documents'));
+
+// users endpoints
+router.use('/users', require('./users'));
 
 // Send an invalid api path error message for all other routes
 router.all('/*', (req, res, next) => {
-  response
-  .status(404)
-  .json({"error" : true, "message" : "Invalid api path !"});
+  utils.sendJsonError(res, "Invalid api path !", 404);
 });
 
 module.exports = router;
