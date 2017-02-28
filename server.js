@@ -14,7 +14,7 @@ let config = require('./private/config');
 mongoose.Promise = require('bluebird');
 
 // Connect to MongoDB and create/use database
-mongoose.connect(config.database)
+mongoose.connect(config.db_url)
   .then(() =>  console.log('DataBase connection established !'))
   .catch((err) => console.error('DataBase connection error: ' + err));
 
