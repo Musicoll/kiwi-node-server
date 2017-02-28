@@ -26,13 +26,11 @@ app.set('view engine', 'ejs')
 // set the public directory to serve from static ressources
 app.use('/assets', express.static('public'))
 
-// Index route
-let indexRoute = require('./routes/index');
-app.use('/', indexRoute);
+// Website routes
+app.use('/', require('./routes/site/index'));
 
-// API route
-let apiRoute = require('./routes/api');
-app.use('/api', apiRoute);
+// API routes
+app.use('/api', require('./routes/api/api'));
 
 // GET a 404 error page for all other routes
 app.all('/*', function(request, response, next) {

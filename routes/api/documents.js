@@ -2,7 +2,7 @@ let express = require('express');
 let router = express.Router();
 
 // Create a model based on the schema
-let PatcherDocument = require('../models/PatcherDocument');
+let PatcherDocument = require('../../models/PatcherDocument');
 
 /*
 // Create a patcher in memory
