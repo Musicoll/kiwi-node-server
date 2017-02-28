@@ -1,6 +1,3 @@
-// server listening port config
-const port = 8080;
-
 // Load packages
 let express = require('express');
 let bodyParser = require('body-parser');
@@ -44,6 +41,6 @@ app.all('/*', function(request, response, next) {
   .render('pages/error404', {title: 'Page not found'})
 });
 
-let server = app.listen(port, function () {
-  console.log('Kiwi server listening on port : ' + port)
+let server = app.listen(config.port, function () {
+  console.log('Kiwi server listening on port : ' + config.port)
 })
