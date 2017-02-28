@@ -1,15 +1,20 @@
-let express = require('express');
-let bodyParser = require('body-parser');
+// server listening port config
 const port = 8080;
 
-// Load mongoose package
+// Load packages
+let express = require('express');
+let bodyParser = require('body-parser');
 let mongoose = require('mongoose');
+let jwt = require('jsonwebtoken');
+
+// get our private config file
+let config = require('./private/config');
 
 // set Promise provider to bluebird
 mongoose.Promise = require('bluebird');
 
-// Connect to MongoDB and create/use database called KiwiAPI
-mongoose.connect('mongodb://localhost/KiwiAPI')
+// Connect to MongoDB and create/use database
+mongoose.connect(config.database)
   .then(() =>  console.log('DataBase connection established !'))
   .catch((err) => console.error('DataBase connection error: ' + err));
 
