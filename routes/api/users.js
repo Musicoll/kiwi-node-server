@@ -12,6 +12,7 @@ router.get('/', (req, res) => {
   User.find()
     .then((users) => { res.json(users) })
     .catch((err) => {
+      console.log(`Error fetching users : ${err}`);
       utils.sendJsonError(res, "Error fetching users", 404);
     });
 
@@ -20,11 +21,14 @@ router.get('/', (req, res) => {
 // POST /users
 router.post('/', (req, res) => {
 
-  User.create(req.body)
-    .then((user) => { res.json(user); })
-    .catch((err) => {
-      utils.sendJsonError(res, "Error creating user : " + err, 500);
-    });
+  let user = new User(req.body);
+
+  user.save()
+  .then(function (data) { res.json(data) })
+  .catch(function (err) {
+    console.log(`Creating new user failed : ${err}`);
+    utils.sendJsonError(res, `Creating new user failed`, 500);
+  })
 
 });
 
@@ -34,7 +38,8 @@ router.get('/:id', (req, res) => {
   User.findById(req.params.id)
     .then((user) => { res.json(user) })
     .catch((err) => {
-      utils.sendJsonError(res, "Error fetching user", 404);
+      console.log(`User ${req.params.id} can not be find : ${err}`);
+      utils.sendJsonError(res, `User ${req.params.id} can not be find`, 404);
     });
 
 });
@@ -50,7 +55,8 @@ router.delete('/:id', (req, res, next) => {
       res.json({"error" : false, "message" : "user " + req.params.id + " deleted"});
     })
     .catch((err) => {
-      utils.sendJsonError(res, "Error fetching user to delete", 404);
+      console.log(`Deleting user ${req.params.id} failed : ${err}`);
+      utils.sendJsonError(res, `Deleting user ${req.params.id} failed`, 404);
     });
 
 });
@@ -58,12 +64,13 @@ router.delete('/:id', (req, res, next) => {
 // PUT /users/:id
 router.put('/:id', (req, res, next) => {
 
-  User.findByIdAndUpdate(req.params.id, req.body)
+  User.findByIdAndUpdate(req.params.id, req.body, { runValidators: true })
     .then((user) => {
       res.json({"error" : false, "message" : "user " + req.params.id + " updated"});
     })
     .catch((err) => {
-      utils.sendJsonError(res, "Error fetching user to update", 404);
+      console.log(`Updating user failed : ${err}`);
+      utils.sendJsonError(res, "Updating user failed", 404);
     });
 
 });
