@@ -27,6 +27,7 @@ $ npm start
 | Route              | HTTP Method |               Description               | Route status       |
 |--------------------|:-----------:|:---------------------------------------:|--------------------|
 | /api               | **GET**     | display API routes                      | :white_check_mark: |
+| /api/auth          | **POST**    | Get an api access token                 | :white_check_mark: |
 | /api/documents     | **GET**     | Get all the documents                   | :white_check_mark: |
 | /api/documents     | **POST**    | Create a new document                   | :white_check_mark: |
 | /api/documents/:id | **GET**     | Get informations about a given document | :white_check_mark: |

@@ -2,7 +2,6 @@
 let express = require('express');
 let bodyParser = require('body-parser');
 let mongoose = require('mongoose');
-let jwt = require('jsonwebtoken');
 
 // get our private config file
 let config = require('./private/config');

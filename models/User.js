@@ -80,10 +80,9 @@ UserSchema.pre('findOneAndUpdate', preUpdate);
  * @param {String} pwd - the candidate password to test
  * @return {Promise} A promise object
  */
-UserSchema.methods.comparePassword = (pwd) => {
+UserSchema.methods.comparePassword = function (pwd) {
 
-  try { return bcrypt.compare(pwd, this.password); }
-  catch (err) {throw err};
+  return bcrypt.compare(pwd, this.password);
 
 };
 
