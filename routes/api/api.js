@@ -14,7 +14,7 @@ router.get('/', (req, res, next) => {
 });
 
 // Authentication endpoint
-router.use('/auth', require('./auth'));
+router.use('/auth', require('./auth').router);
 
 // documents endpoints
 router.use('/documents', require('./documents'));

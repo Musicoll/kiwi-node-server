@@ -2,11 +2,15 @@ let express = require('express');
 let router = express.Router();
 let utils = require('./utils');
 
+let auth = require('./auth');
+
 // Get the user model
 let User = require('../../models/User');
 
 // GET /users
-router.get('/', (req, res) => {
+router.get('/', auth.check(), (req, res) => {
+
+  console.log(`authenticated : ${req.authenticated}`);
 
   // Find all data in the User collection
   User.find()
