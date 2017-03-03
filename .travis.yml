@@ -1,7 +1,12 @@
 language: node_js
 sudo: false
+
 before_install:
   - npm i -g npm
   - npm i -g node-gyp
+  - apt-get install python
+  - apt-get install make
+  - apt-get install g++
+
 node_js:
   - "6"
