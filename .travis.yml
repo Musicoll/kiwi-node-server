@@ -1,5 +1,7 @@
 language: node_js
 sudo: false
-before_install: npm i -g npm
+before_install:
+  - npm i -g npm
+  - npm i -g node-gyp
 node_js:
   - "6"
