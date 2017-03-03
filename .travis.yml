@@ -4,9 +4,10 @@ sudo: true
 before_install:
   - npm i -g npm
   - npm i -g node-gyp
+  - sudo apt-get update
   - sudo apt-get install python
   - sudo apt-get install make
-  - sudo apt-get install g++
+  - sudo apt-get install g++-4.9
 
 node_js:
   - "6"
