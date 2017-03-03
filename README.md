@@ -1,4 +1,7 @@
 # kiwi-node-server
+[![Build Status](https://travis-ci.org/https://travis-ci.org/Musicoll/kiwi-node-server.svg?branch=master)](https://travis-ci.org/Musicoll/kiwi-node-server)
+[![Dependency Status](https://david-dm.org/Musicoll/kiwi-node-server.svg)](https://david-dm.org/Musicoll/kiwi-node-server)
+
 kiwi node.js server
 
 ## installation
