@@ -4,6 +4,7 @@ sudo: true
 before_install:
   - npm i -g npm
   - npm i -g node-gyp
+  - sudo add-apt-repository ppa:ubuntu-toolchain-r/test
   - sudo apt-get update
   - sudo apt-get install python
   - sudo apt-get install make
