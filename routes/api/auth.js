@@ -18,7 +18,9 @@ let User = require('../../models/User');
 router.post('/', (req, res) => {
 
   // find the user
-  User.findOne({ email: req.body.email }).then((user) => {
+  User.findOne({ email: req.body.email })
+  .select('_id email +password')
+  .then((user) => {
 
     if(user) {
 
