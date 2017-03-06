@@ -82,7 +82,7 @@ function check() {
 
           // if everything is good, save to request for use in other routes
           req.authenticated = true;
-          console.log(util.inspect(req.user, {showHidden: false, depth: null}))
+          console.log(util.inspect(decoded, {showHidden: false, depth: null}))
           //req.user = decoded.user;
           console.log(`decoded.user : ${decoded.email}`);
           return next();
