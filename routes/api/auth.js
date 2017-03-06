@@ -21,12 +21,19 @@ router.post('/', (req, res) => {
   User.findOne({ email: req.body.email }).then((user) => {
 
     if(user) {
+
       user.comparePassword(req.body.password)
       .then((is_valid) => {
         if(is_valid) {
+
+          user = user.toObject();
+
+          // remove the password field from the token
+          delete user['password'];
+
           // user is found and password is right, create and return the token
           let token = jwt.sign(user, PRIVATE_KEY, {
-            expiresIn: 86400 // expires in 24 hours
+            expiresIn: '24h'
           });
 
           // return the information including token as JSON
@@ -65,17 +72,17 @@ function check() {
 
     // check header or url parameters or post parameters for token
     var token = req.body.token || req.query.token || req.headers['x-access-token'];
-    // decode token
     if (token) {
-      // verifies secret and checks exp
+      // verifies secret and checks expiration date
       jwt.verify(token, PRIVATE_KEY, function(err, decoded) {
         if (err) {
-          utils.sendJsonError(res, "Failed to authenticate token.", 403);
+          utils.sendJsonError(res, `Failed to authenticate token: ${err}`, 403);
         }
         else {
+
           // if everything is good, save to request for use in other routes
           req.authenticated = true;
-          console.log(util.inspect(decoded, {showHidden: false, depth: null}))
+          console.log(util.inspect(req.user, {showHidden: false, depth: null}))
           //req.user = decoded.user;
           console.log(`decoded.user : ${decoded.email}`);
           return next();

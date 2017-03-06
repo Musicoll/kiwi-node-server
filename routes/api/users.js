@@ -7,10 +7,16 @@ let auth = require('./auth');
 // Get the user model
 let User = require('../../models/User');
 
-// GET /users
-router.get('/', auth.check(), (req, res) => {
+// GET /users/private (temporary private dummy endpoint)
+router.get('/private', auth.check(), (req, res) => {
 
   console.log(`authenticated : ${req.authenticated}`);
+  res.json({message: "Authenticated !"})
+
+});
+
+// GET /users
+router.get('/', (req, res) => {
 
   // Find all data in the User collection
   User.find()
