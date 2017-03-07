@@ -22,6 +22,11 @@ let UserSchema = new mongoose.Schema({
 
 }, { strict: true });
 
+UserSchema.path('email').validate(function(email) {
+  let email_regexp = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+  return email_regexp.test(email);
+}, 'The e-mail is not valid !')
+
 /**
  * Password Hashing Middleware
  * hash the password if it's a new password or if it has been modified.
