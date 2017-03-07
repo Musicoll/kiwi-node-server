@@ -20,12 +20,12 @@ router.post('/', (req, res) => {
   // find the user
   User.findOne({ email: req.body.email })
   .select('_id email +password')
-  .then((user) => {
+  .then(user => {
 
     if(user) {
 
       user.comparePassword(req.body.password)
-      .then((is_valid) => {
+      .then(is_valid => {
         if(is_valid) {
 
           user = user.toObject();
@@ -50,7 +50,7 @@ router.post('/', (req, res) => {
           utils.sendJsonError(res, "Authentication failed.", 500);
         }
       })
-      .catch((err) => {
+      .catch(err => {
         console.log(`Authentication failed. Wrong password ! ${err}`);
         utils.sendJsonError(res, "Authentication failed.", 500);
       })
@@ -60,7 +60,7 @@ router.post('/', (req, res) => {
       utils.sendJsonError(res, "Authentication failed.", 404);
     }
   })
-  .catch((err) => {
+  .catch(err => {
     console.log(`Authentication failed. Error : ${err}`);
     utils.sendJsonError(res, "Authentication failed.", 404);
   })

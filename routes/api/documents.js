@@ -23,8 +23,8 @@ router.get('/', (req, res) => {
 
   // Find all data in the PatcherDocument collection
   PatcherDocument.find()
-    .then((patchers) => { res.json(patchers) })
-    .catch((err) => {
+    .then(patchers => { res.json(patchers) })
+    .catch(err => {
       utils.sendJsonError(res, "Error fetching documents", 404);
     });
 
@@ -34,8 +34,8 @@ router.get('/', (req, res) => {
 router.post('/', (req, res) => {
 
   PatcherDocument.create(req.body)
-    .then((patcher) => { res.json(patcher); })
-    .catch((err) => {
+    .then(patcher => { res.json(patcher); })
+    .catch(err => {
       utils.sendJsonError(res, "Error creating document", 500);
     });
 
@@ -45,8 +45,8 @@ router.post('/', (req, res) => {
 router.get('/:id', (req, res) => {
 
   PatcherDocument.findById(req.params.id)
-    .then((patcher) => { res.json(patcher) })
-    .catch((err) => {
+    .then(patcher => { res.json(patcher) })
+    .catch(err => {
       utils.sendJsonError(res, "Error fetching document", 404);
     });
 
@@ -59,10 +59,10 @@ router.delete('/:id', (req, res, next) => {
   // for now this returns a success message :(
 
   PatcherDocument.findByIdAndRemove(req.params.id)
-    .then((patcher) => {
+    .then(patcher => {
       res.json({"error" : false, "message" : "document " + req.params.id + " deleted"});
     })
-    .catch((err) => {
+    .catch(err => {
       utils.sendJsonError(res, "Error fetching document to delete", 404);
     });
 
@@ -72,10 +72,10 @@ router.delete('/:id', (req, res, next) => {
 router.put('/:id', (req, res, next) => {
 
   PatcherDocument.findByIdAndUpdate(req.params.id, req.body)
-    .then((patcher) => {
+    .then(patcher => {
       res.json({"error" : false, "message" : "document " + req.params.id + " updated"});
     })
-    .catch((err) => {
+    .catch(err => {
       utils.sendJsonError(res, "Error fetching document to update", 404);
     });
 
