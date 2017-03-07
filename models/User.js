@@ -26,21 +26,23 @@ let UserSchema = new mongoose.Schema({
  * Password Hashing Middleware
  * hash the password if it's a new password or if it has been modified.
  */
-UserSchema.pre('save', function (next) {
+ UserSchema.pre('save', function (next) {
 
-  let user = this;
-  if(user.isModified('password')) {
-    bcrypt.hash(user.password, SALT_WORK_FACTOR)
-    .then((pwd_hash) => {
-      user.password = pwd_hash;
-      next();
-    })
-    .catch((err) => {
-      next(err);
-    });
-  }
+   let user = this;
+   if(user.isModified('password')) {
+     bcrypt.hash(user.password, SALT_WORK_FACTOR)
+     .then((pwd_hash) => {
+       user.password = pwd_hash;
+       next();
+     })
+     .catch((err) => {
+       next(err);
+     });
+   }
+   else {
+     next()
+   }
 
-  next();
 });
 
 /**
@@ -68,8 +70,9 @@ function preUpdate(next) {
       next(err);
     });
   }
-
-  next();
+  else {
+    next();
+  }
 }
 
 UserSchema.pre('update', preUpdate);

@@ -2,10 +2,10 @@ let express = require('express');
 let router = express.Router();
 let utils = require('./utils');
 
-let auth = require('./auth');
-
 // Get the user model
 let User = require('../../models/User');
+
+let auth = require('./auth');
 
 // GET /users/private (temporary private dummy endpoint)
 router.get('/private', auth.check(), (req, res) => {
@@ -29,12 +29,14 @@ router.get('/', (req, res) => {
 });
 
 // POST /users
-router.post('/', (req, res) => {
+router.post('/', function (req, res) {
 
   let user = new User(req.body);
 
   user.save()
-  .then(function (data) { res.json(data) })
+  .then(function (data) {
+    res.json(data)
+  })
   .catch(function (err) {
     console.log(`Creating new user failed : ${err}`);
     utils.sendJsonError(res, `Creating new user failed`, 500);
