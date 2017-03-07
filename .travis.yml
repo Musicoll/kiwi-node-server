@@ -1,13 +1,22 @@
 language: node_js
-sudo: true
 
-before_install:
-  - npm i -g npm
-  - npm i -g node-gyp
-  - sudo apt-get update
-  - sudo apt-get install python
-  - sudo apt-get install make
-  - sudo apt-get install gxx-4.9
+sudo: false
+
+env:
+  - CXX=g++-4.8
 
 node_js:
   - "6"
+
+addons:
+  apt:
+    sources:
+    - ubuntu-toolchain-r-test
+    packages:
+    - g++-4.8
+
+before_install:
+  - $CXX --version
+  - if [ "$TRAVIS_NODE_VERSION" = "0.8" ]; then npm install -g npm@2.7.3; fi;
+
+install: true
