@@ -20,6 +20,8 @@ before_install:
 
 install: true
 
-script: npm test
+script:
+  - npm install
+  - npm test
 
 services: mongodb
