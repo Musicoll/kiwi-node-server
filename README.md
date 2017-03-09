@@ -11,7 +11,7 @@ To use this repository you'll need to have these dependencies installed :
  - MongoDB
  - npm
 
-clone this repository, add your `config.js` file in the `private` directory as explained [here](private), then:
+clone this repository then type:
 
 ```shell
 # install node package dependencies

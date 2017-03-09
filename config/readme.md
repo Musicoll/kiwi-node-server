@@ -1,6 +1,6 @@
-# config
+# Add your own config files
 
-This project uses the node-config module to support multiple server configurations.  
+This project uses the [node-config](https://github.com/lorenwest/node-config) module to support multiple server configurations.  
 You can add your own configuration file to this directory as explained [here](https://github.com/lorenwest/node-config/wiki/Configuration-Files).  
 
 Ex:
