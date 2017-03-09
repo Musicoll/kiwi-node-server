@@ -2,9 +2,7 @@
 let express = require('express');
 let bodyParser = require('body-parser');
 let mongoose = require('mongoose');
-
-// get our private config file
-let config = require('./private/config');
+let config = require('config');
 
 // set Promise provider to bluebird
 mongoose.Promise = require('bluebird');
