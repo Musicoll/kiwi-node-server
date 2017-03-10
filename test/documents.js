@@ -53,7 +53,7 @@ test('POST /api/documents', t => {
   .expect(200)
   .expect('Content-Type', /json/)
   .end((err, res) => {
-
+    
     t.ok(res.body.name == "toto.kiwi", "document name is ok");
     t.end(err);
   });
