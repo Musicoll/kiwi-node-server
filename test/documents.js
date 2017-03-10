@@ -18,32 +18,6 @@ test('setup', function(t) {
   })
 });
 
-test('GET /api', t => {
-
-  request(app).get('/api/documents')
-  .set('Accept', 'application/json')
-  .expect(200)
-  .expect('Content-Type', /json/)
-  .end((err, res) => {
-    t.ok(res.body instanceof Object, '/api endpoint ok');
-    t.end(err);
-  });
-
-});
-
-test('GET /api invalid path error', t => {
-
-  request(app).get('/api/toto')
-  .set('Accept', 'application/json')
-  .expect(404)
-  .expect('Content-Type', /json/)
-  .end((err, res) => {
-    t.ok(res.body.error === true, '/api/toto is an invalid api path')
-    t.end(err);
-  });
-
-});
-
 test('GET /api/documents', t => {
 
   request(app).get('/api/documents')
@@ -112,6 +86,7 @@ test('GET /api/documents/:id', t => {
 });
 
 test('teardown', function(t){
-  mongoose.connection.close()
-  t.end();
+  mongoose.connection.close(function(err) {
+    t.end()
+  })
 });
