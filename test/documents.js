@@ -23,10 +23,11 @@ test('setup', function(t) {
 test('GET /api', t => {
 
   request(app).get('/api/documents')
+  .set('Accept', 'application/json')
   .expect(200)
   .expect('Content-Type', /json/)
   .end((err, res) => {
-    t.ok(res instanceof Object, '/api endpoint ok');
+    t.ok(res.body instanceof Object, '/api endpoint ok');
     t.end(err);
   });
 
@@ -35,6 +36,7 @@ test('GET /api', t => {
 test('GET /api invalid path error', t => {
 
   request(app).get('/api/toto')
+  .set('Accept', 'application/json')
   .expect(404)
   .expect('Content-Type', /json/)
   .end((err, res) => {
@@ -47,10 +49,11 @@ test('GET /api invalid path error', t => {
 test('GET /api/documents', t => {
 
   request(app).get('/api/documents')
+  .set('Accept', 'application/json')
   .expect(200)
   .expect('Content-Type', /json/)
   .end((err, res) => {
-    t.ok(res instanceof Object, '/api/documents endpoint ok');
+    t.ok(res.body instanceof Object, '/api/documents endpoint ok');
     t.end(err);
   });
 
@@ -59,12 +62,16 @@ test('GET /api/documents', t => {
 test('POST /api/documents', t => {
 
   request(app).post('/api/documents')
+  .set('Accept', 'application/json')
   .send({name: 'toto.kiwi'})
   .expect(200)
   .expect('Content-Type', /json/)
   .end((err, res) => {
-
-    t.ok(res.body.name == "toto.kiwi", "document name is ok");
+    let doc = res.body;
+    t.ok('name' in doc, "document has a 'name' property");
+    t.ok(doc.name == "toto.kiwi", "document name has been set");
+    t.ok('_id' in doc, "document has an '_id' property");
+    t.ok('updated_at' in doc, "document has an 'updated_at' property");
     t.end(err);
   });
 
