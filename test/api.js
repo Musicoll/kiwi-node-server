@@ -15,7 +15,6 @@ test('GET /api', t => {
   .expect('Content-Type', /json/)
   .end((err, res) => {
     t.error(err, 'Get the /api endpoint with no errors')
-    //t.ok(res.body instanceof Object, '/api endpoint ok');
     t.end();
   });
 
