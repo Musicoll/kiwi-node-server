@@ -20,8 +20,8 @@ before_install:
 
 install: true
 
+services: mongodb
+
 script:
   - npm install
-  - npm test
-
-services: mongodb
+  - npm run travis-test

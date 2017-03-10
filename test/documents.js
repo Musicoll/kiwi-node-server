@@ -22,8 +22,7 @@ test('setup', function(t) {
 
 test('GET /api', t => {
 
-  request(app)
-  .get('/api/documents')
+  request(app).get('/api/documents')
   .expect(200)
   .expect('Content-Type', /json/)
   .end((err, res) => {
@@ -33,10 +32,21 @@ test('GET /api', t => {
 
 });
 
+test('GET /api invalid path error', t => {
+
+  request(app).get('/api/toto')
+  .expect(404)
+  .expect('Content-Type', /json/)
+  .end((err, res) => {
+    t.ok(res.body.error === true, '/api/toto is an invalid api path')
+    t.end(err);
+  });
+
+});
+
 test('GET /api/documents', t => {
 
-  request(app)
-  .get('/api/documents')
+  request(app).get('/api/documents')
   .expect(200)
   .expect('Content-Type', /json/)
   .end((err, res) => {
@@ -53,7 +63,7 @@ test('POST /api/documents', t => {
   .expect(200)
   .expect('Content-Type', /json/)
   .end((err, res) => {
-    
+
     t.ok(res.body.name == "toto.kiwi", "document name is ok");
     t.end(err);
   });
