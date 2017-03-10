@@ -124,6 +124,58 @@ test('DELETE /api/documents/:id', t => {
 
 });
 
+test('update a document with a bad id should fail', t => {
+
+  const bad_id = 'zozo';
+  request(app).put('/api/documents/' + bad_id)
+  .set('Accept', 'application/json')
+  .send({name: 'toto.kiwi'})
+  .expect(404)
+  .expect('Content-Type', /json/)
+  .end((error, response) => {
+    t.ok(response.body.error === true, `document with id '${bad_id}' can not be updated`)
+    t.end(error);
+  });
+
+});
+
+test('PUT /api/documents/:id', t => {
+
+  const old_name = 'toto.kiwi';
+  const new_name = 'tata.kiwi';
+
+  request(app).post('/api/documents')
+  .set('Accept', 'application/json')
+  .send({name: old_name})
+  .expect(200)
+  .expect('Content-Type', /json/)
+  .end((err, res) => {
+
+    let doc = res.body;
+
+    t.error(err, `document ${doc._id} created`)
+
+    request(app).put('/api/documents/' + doc._id)
+    .set('Accept', 'application/json')
+    .send({name: new_name})
+    .expect(200)
+    .expect('Content-Type', /json/)
+    .end((error, response) => {
+      t.ok(response.body.error === false, `document ${doc._id} has been successfully updated`)
+
+      request(app).get('/api/documents/' + doc._id)
+      .expect(200)
+      .expect('Content-Type', /json/)
+      .end((error2, response2) => {
+        t.same(response2.body.name, new_name, `document name has been successfully updated`)
+        t.end(error2);
+      });
+    });
+
+  });
+
+});
+
 test('teardown', function(t){
   mongoose.connection.close(function(err) {
     t.end()
