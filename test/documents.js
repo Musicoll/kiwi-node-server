@@ -85,6 +85,45 @@ test('GET /api/documents/:id', t => {
 
 });
 
+test('delete a document with a bad id should fail', t => {
+
+  const bad_id = 'zozo';
+  request(app).delete('/api/documents/' + bad_id)
+  .set('Accept', 'application/json')
+  .expect(404)
+  .expect('Content-Type', /json/)
+  .end((error, response) => {
+    t.ok(response.body.error === true, `document with id '${bad_id}' can not be deleted`)
+    t.end(error);
+  });
+
+});
+
+test('DELETE /api/documents/:id', t => {
+
+  request(app).post('/api/documents')
+  .set('Accept', 'application/json')
+  .send()
+  .expect(200)
+  .expect('Content-Type', /json/)
+  .end((err, res) => {
+
+    let doc = res.body;
+
+    t.error(err, `document ${doc._id} created`)
+
+    request(app).delete('/api/documents/' + doc._id)
+    .set('Accept', 'application/json')
+    .expect(200)
+    .expect('Content-Type', /json/)
+    .end((error, response) => {
+      t.ok(response.body.error === false, `document ${doc._id} has been successfully deleted`)
+      t.end(error);
+    });
+  });
+
+});
+
 test('teardown', function(t){
   mongoose.connection.close(function(err) {
     t.end()
