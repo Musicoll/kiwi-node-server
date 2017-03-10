@@ -12,8 +12,6 @@ let mongoose = require('mongoose');
 let server = require('../app/app');
 let app = server.app;
 
-const util = require('util')
-
 test('setup', function(t) {
   server.connectDataBase(err => {
     t.end(err);

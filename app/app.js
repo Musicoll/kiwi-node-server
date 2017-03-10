@@ -5,6 +5,7 @@ process.env.NODE_ENV = process.env.NODE_ENV || 'dev';
 let express = require('express');
 let bodyParser = require('body-parser');
 let config = require('config');
+let db = require('./db');
 
 let app = express();
 
@@ -31,7 +32,6 @@ app.all('/*', function(request, response, next) {
 });
 
 connectDataBase = (done) => {
-  let db = require('./db');
   db.connect(err => {
     if(!err) {
       typeof done === 'function' && done()
