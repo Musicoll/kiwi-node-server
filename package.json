@@ -5,8 +5,8 @@
   "main": "server.js",
   "scripts": {
     "start": "NODE_ENV=dev node server.js",
-    "test": "NODE_ENV=test tape test/*.js | tap-spec",
-    "travis-test": "NODE_ENV=test tap test/*.js | tap-spec"
+    "test": "NODE_ENV=test tape test/tests.js | tap-spec",
+    "travis-test": "NODE_ENV=test tap test/tests.js | tap-spec"
   },
   "repository": {
     "type": "git",

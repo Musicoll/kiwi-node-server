@@ -32,3 +32,5 @@ test('GET /api invalid path error', t => {
   });
 
 });
+
+module.exports = test;

@@ -55,3 +55,5 @@ test('Start and close server', t => {
   t.end()
 
 });
+
+module.exports = test;

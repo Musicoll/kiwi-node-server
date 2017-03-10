@@ -1,22 +1,10 @@
 //During the test the env variable is set to test
 process.env.NODE_ENV = 'test';
 
-let PatcherDocument = require('../models/PatcherDocument');
-
-//Require the dev-dependencies
 const test = require('tape');
 let request = require('supertest');
-
-let mongoose = require('mongoose');
-
 let server = require('../app/app');
 let app = server.app;
-
-test('setup', function(t) {
-  server.connectDataBase(err => {
-    t.end(err);
-  })
-});
 
 test('GET /api/documents', t => {
 
@@ -176,8 +164,4 @@ test('PUT /api/documents/:id', t => {
 
 });
 
-test('teardown', function(t){
-  mongoose.connection.close(function(err) {
-    t.end()
-  })
-});
+module.exports = test;
