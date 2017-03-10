@@ -1,6 +1,3 @@
-// Set default node environment to development
-process.env.NODE_ENV = process.env.NODE_ENV || 'dev';
-
 let mongoose = require('mongoose');
 let config = require('config');
 
@@ -14,13 +11,13 @@ connect = (done) => {
   // When successfully connected
   mongoose.connection.on('connected', function () {
     console.log('Mongoose default connection open to ' + config.db_url);
-    if(done) { done() }
+    typeof done === 'function' && done()
   });
 
   // If the connection throws an error
   mongoose.connection.on('error', function (err) {
     console.log('Mongoose default connection error: ' + err);
-    if(done) { done(err) }
+    typeof done === 'function' && done(err)
   });
 
   // When the connection is disconnected
