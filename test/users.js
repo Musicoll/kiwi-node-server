@@ -19,4 +19,34 @@ test('GET /api/users', t => {
 
 });
 
+test('POST /api/users with no info provided should fail', t => {
+
+  request(app).post('/api/users')
+  .set('Accept', 'application/json')
+  .send({})
+  .expect(206)
+  .expect('Content-Type', /json/)
+  .end((err, res) => {
+    t.error(err, 'request failed')
+    t.ok(res.body.error === true, 'response has an error')
+    t.end()
+  });
+
+});
+
+test('Create a new user with only email provided should fail', t => {
+
+  request(app).post('/api/users')
+  .set('Accept', 'application/json')
+  .send({email: 'toto@gmail.com'})
+  .expect(206)
+  .expect('Content-Type', /json/)
+  .end((err, res) => {
+    t.error(err, 'request failed')
+    t.ok(res.body.error === true, 'response has an error')
+    t.end()
+  });
+
+});
+
 module.exports = test;
