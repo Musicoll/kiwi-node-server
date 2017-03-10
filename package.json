@@ -4,7 +4,7 @@
   "description": "Node.js server for Kiwi app",
   "main": "server.js",
   "scripts": {
-    "test": "NODE_ENV=test node test/test.js",
+    "test": "NODE_ENV=test tape test/documents.js | tap-spec",
     "start": "NODE_ENV=dev node server.js"
   },
   "repository": {
@@ -33,6 +33,9 @@
     "mongoose": "^4.8.4"
   },
   "devDependencies": {
+    "supertest": "^3.0.0",
+    "tap": "^10.3.0",
+    "tap-spec": "^4.1.1",
     "tape": "^4.6.3"
   }
 }

@@ -1,8 +1,8 @@
 const test = require('tape');
 
-test('A passing test', assert => {
+test('A passing test', t => {
 
-  assert.pass('This test will pass.');
+  t.pass('This test will pass.');
 
-  assert.end();
+  t.end();
 });

@@ -1,16 +1,16 @@
+// Set default node environment to development
+process.env.NODE_ENV = process.env.NODE_ENV || 'dev';
+
 // Load packages
 let express = require('express');
 let bodyParser = require('body-parser');
-let mongoose = require('mongoose');
 let config = require('config');
 
-// set Promise provider to bluebird
-mongoose.Promise = require('bluebird');
+if(require.main === module) {
 
-// Connect to MongoDB and create/use database
-mongoose.connect(config.db_url)
-  .then(() =>  console.log('DataBase connection established !'))
-  .catch((err) => console.error('DataBase connection error: ' + err));
+  let db = require('./db');
+  db.connect()
+}
 
 let app = express();
 
@@ -36,6 +36,26 @@ app.all('/*', function(request, response, next) {
   .render('pages/error404', {title: 'Page not found'})
 });
 
-let server = app.listen(config.port, function () {
-  console.log('Kiwi server listening on port : ' + config.port)
-})
+// Start server (only if this file has been called directly)
+if(require.main === module) {
+  app.listen(config.port, function () {
+    console.log('Kiwi server listening on port : ' + config.port)
+  })
+}
+
+start = (done) => {
+  let db = require('./db');
+  db.connect(err => {
+    if(!err) {
+      done();
+    }
+    else {
+      done(err);
+    }
+  })
+}
+
+module.exports = {
+  start: start,
+  app: app
+}
