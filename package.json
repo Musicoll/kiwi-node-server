@@ -4,7 +4,7 @@
   "description": "Node.js server for Kiwi app",
   "main": "server.js",
   "scripts": {
-    "test": "NODE_ENV=test tape test/*.js | tap-spec",
+    "test": "NODE_ENV=test tap test/*.js | tap-spec",
     "start": "NODE_ENV=dev node server.js"
   },
   "repository": {
