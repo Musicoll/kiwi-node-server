@@ -9,13 +9,13 @@ let request = require('supertest');
 
 let mongoose = require('mongoose');
 
-let server = require('../server');
+let server = require('../app/app');
 let app = server.app;
 
 const util = require('util')
 
 test('setup', function(t) {
-  server.start(err => {
+  server.connectDataBase(err => {
     t.end(err);
   })
 });
