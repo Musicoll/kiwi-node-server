@@ -1,6 +1,3 @@
-// Set default node environment to development
-process.env.NODE_ENV = process.env.NODE_ENV || 'dev';
-
 // Load packages
 let express = require('express');
 let bodyParser = require('body-parser');
@@ -33,12 +30,7 @@ app.all('/*', function(request, response, next) {
 
 connectDataBase = (done) => {
   db.connect(err => {
-    if(!err) {
-      typeof done === 'function' && done()
-    }
-    else {
-      typeof done === 'function' && done(err)
-    }
+    typeof done === 'function' && done(err)
   })
 }
 

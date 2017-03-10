@@ -27,3 +27,28 @@ test('Test 404 error HTML page note found', t => {
   });
 
 });
+
+test('Start and close server', t => {
+
+  let app_server;
+  t.test('Start server', st => {
+
+    app_server = server.startServer(done => {
+      st.ok(true, 'the server is running');
+      st.end()
+    })
+
+  });
+
+  t.test('Stop Server', st => {
+
+    app_server.close(done => {
+      st.ok(true, 'the server is closed');
+      st.end()
+    })
+
+  });
+
+  t.end()
+
+});
