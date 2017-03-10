@@ -1,6 +1,7 @@
 let express = require('express');
 let router = express.Router();
 let utils = require('./utils');
+let util = require('util');
 
 // Get the user model
 let User = require('../../models/User');
@@ -36,8 +37,19 @@ router.post('/', function (req, res) {
   newuser.save()
   .then(user => { res.json(user) })
   .catch(err => {
-    console.log(`Creating new user failed : ${err}`);
-    utils.sendJsonError(res, `Creating new user failed`, 500);
+    console.log(`Creating new user failed : ${err.message}`);
+    //console.log(util.inspect(user));
+    if('email' in err.errors)
+    {
+      utils.sendJsonError(res, `${err.errors.email.message}`, 206);
+    }
+    else if('password' in err.errors)
+    {
+      utils.sendJsonError(res, `${err.errors.password.message}`, 206);
+    }
+    else {
+      utils.sendJsonError(res, `Creating new user failed`, 500);
+    }
   })
 
 });
