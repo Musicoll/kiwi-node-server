@@ -77,6 +77,42 @@ test('POST /api/documents', t => {
 
 });
 
+test('GET /api/documents/:id with a bad id', t => {
+
+  request(app).get('/api/documents/badid')
+  .set('Accept', 'application/json')
+  .expect(404)
+  .expect('Content-Type', /json/)
+  .end((err, res) => {
+    t.ok(res.body.error === true, '/api/documents/badid is not a valid document id')
+    t.end(err);
+  });
+
+});
+
+test('GET /api/documents/:id', t => {
+
+  request(app).post('/api/documents')
+  .set('Accept', 'application/json')
+  .send({name: 'toto.kiwi'})
+  .expect(200)
+  .expect('Content-Type', /json/)
+  .end((err, res) => {
+
+    let doc = res.body;
+
+    request(app).get('/api/documents/' + doc._id)
+    .set('Accept', 'application/json')
+    .expect(200)
+    .expect('Content-Type', /json/)
+    .end((error, response) => {
+      t.same(doc, response.body, 'document can be retrieved by id');
+      t.end(err);
+    });
+  });
+
+});
+
 test('teardown', function(t){
   mongoose.connection.close()
   t.end();
