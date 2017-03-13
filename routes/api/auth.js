@@ -4,7 +4,7 @@ let utils = require('./utils');
 
 const util = require('util')
 
-const PRIVATE_KEY = require('../../private/config').private_key
+const PRIVATE_KEY = require('config').private_key
 
 // Get the user model
 let User = require('../../models/User');

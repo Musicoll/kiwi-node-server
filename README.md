@@ -1,5 +1,6 @@
 # kiwi-node-server
 [![Build Status](https://travis-ci.org/Musicoll/kiwi-node-server.svg?branch=master)](https://travis-ci.org/Musicoll/kiwi-node-server)
+[![Coverage Status](https://coveralls.io/repos/github/Musicoll/kiwi-node-server/badge.svg?branch=master)](https://coveralls.io/github/Musicoll/kiwi-node-server?branch=master)
 [![Dependency Status](https://david-dm.org/Musicoll/kiwi-node-server.svg)](https://david-dm.org/Musicoll/kiwi-node-server)
 
 kiwi node.js server
@@ -11,7 +12,7 @@ To use this repository you'll need to have these dependencies installed :
  - MongoDB
  - npm
 
-clone this repository, add your `config.js` file in the `private` directory as explained [here](private), then:
+clone this repository then type:
 
 ```shell
 # install node package dependencies

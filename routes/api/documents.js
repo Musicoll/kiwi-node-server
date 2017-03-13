@@ -5,19 +5,6 @@ let utils = require('./utils');
 // Create a model based on the schema
 let PatcherDocument = require('../../models/PatcherDocument');
 
-/*
-// Create a patcher in memory
-let patcher = new PatcherDocument({name: 'test.kiwi',});
-
-// Save it to database
-patcher.save(function(err) {
-  if(err)
-    console.log(err);
-  else
-    console.log(patcher);
-});
-*/
-
 // GET /documents
 router.get('/', (req, res) => {
 

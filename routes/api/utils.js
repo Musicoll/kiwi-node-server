@@ -5,8 +5,8 @@
  * @param {String} message - the error message
  * @param {Number} status - the error code to set
  */
-module.exports.sendJsonError = (response, message = "An error occured !", status = 404) => {
+module.exports.sendJsonError = (response, message, status) => {
   response
-  .status(404)
+  .status(status)
   .json({"error" : true, "message" : message});
 }

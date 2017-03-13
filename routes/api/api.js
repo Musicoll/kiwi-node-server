@@ -2,15 +2,17 @@ let express = require('express');
 let router = express.Router();
 let utils = require('./utils');
 
+const api_paths = {
+  auth_url:       "/auth",
+  users_url:      "/users",
+  user_url :      "/users/:id",
+  documents_url:  "/documents",
+  document_url:   "/documents/:id"
+}
+
 // GET /
 router.get('/', (req, res, next) => {
-  res.json({
-    auth_url:       "/auth",
-    users_url:      "/users",
-    user_url :      "/users/:id",
-    documents_url:  "/documents",
-    document_url:   "/documents/:id"
-  })
+  res.json(api_paths);
 });
 
 // Authentication endpoint
