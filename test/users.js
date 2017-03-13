@@ -273,4 +273,52 @@ test('Updating email with a valid email should pass', t => {
 
 });
 
+test('Updating password with a valid ID should pass', t => {
+
+  helper.clearDatabase();
+
+  request(app).post('/api/users')
+  .set('Accept', 'application/json')
+  .send(userTest)
+  .expect(200)
+  .expect('Content-Type', /json/)
+  .end((err, res) => {
+
+    const updated_user = {
+      password: 'newpassword'
+    }
+
+    const user_id = res.body._id;
+    t.error(err, `user ${user_id} created`)
+
+    request(app).put('/api/users/' + user_id)
+    .set('Accept', 'application/json')
+    .send(updated_user)
+    .expect(200)
+    .expect('Content-Type', /json/)
+    .end((error, response) => {
+
+      t.ok(response.body.error === false, `user ${user_id} successfully updated`);
+
+      User.findById(user_id)
+      .select('+password')
+      .then(user => {
+
+        user.comparePassword(updated_user.password)
+        .then(is_valid => {
+          t.ok(is_valid, 'Comparing raw password with the new hashed one must be equal')
+          t.end()
+        })
+
+      })
+      .catch(error2 => {
+        t.end(error2)
+      })
+
+    });
+
+  });
+
+});
+
 module.exports = test;
