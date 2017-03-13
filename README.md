@@ -12,17 +12,35 @@ To use this repository you'll need to have these dependencies installed :
  - MongoDB
  - npm
 
-clone this repository then type:
+clone this repository then:
+
+install node package dependencies using
 
 ```shell
-# install node package dependencies
 $ npm install
+```
 
-# start mongoDB
-$ mongo
+then start the mongo database by typing in another console process
+```shell
+$ sudo mongod
 
-# start the server
+# (linux):
+$ sudo service mongodb start
+```
+
+You can then start the server by typing:
+```shell
 $ npm start
+```
+
+And run the unit-test by typing:
+```shell
+$ npm test
+```
+
+Or the unit-test with coverage by typing:
+```shell
+$ npm run test-cov
 ```
 
 
@@ -39,6 +57,6 @@ $ npm start
 | /api/documents/:id | **PUT**     | Update a document with a given id       | :white_check_mark: |
 | /api/users         | **GET**     | Get all the users                       | :white_check_mark: |
 | /api/users         | **POST**    | Create a new user                       | :white_check_mark: |
-| /api/user/:id      | **GET**     | Get informations about a given user     | :white_check_mark: |
-| /api/user/:id      | **PUT**     | Update user informations                | :white_check_mark: |
-| /api/user/:id      | **DELETE**  | Delete a user with a given id           | :white_check_mark: |
+| /api/users/:id     | **GET**     | Get informations about a given user     | :white_check_mark: |
+| /api/users/:id     | **PUT**     | Update user informations                | :white_check_mark: |
+| /api/users/:id     | **DELETE**  | Delete a user with a given id           | :white_check_mark: |
