@@ -3,10 +3,14 @@ process.env.NODE_ENV = 'test';
 
 const test = require('tape');
 let request = require('supertest');
+
+const helper = require('./helper');
 let server = require('../app/app');
 let app = server.app;
 
 test('GET /api/documents', t => {
+
+  helper.clearDatabase();
 
   request(app).get('/api/documents')
   .set('Accept', 'application/json')
@@ -20,6 +24,8 @@ test('GET /api/documents', t => {
 });
 
 test('POST /api/documents', t => {
+
+  helper.clearDatabase();
 
   request(app).post('/api/documents')
   .set('Accept', 'application/json')
@@ -39,6 +45,8 @@ test('POST /api/documents', t => {
 
 test('GET /api/documents/:id with a bad id', t => {
 
+  helper.clearDatabase();
+
   request(app).get('/api/documents/badid')
   .set('Accept', 'application/json')
   .expect(404)
@@ -51,6 +59,8 @@ test('GET /api/documents/:id with a bad id', t => {
 });
 
 test('GET /api/documents/:id', t => {
+
+  helper.clearDatabase();
 
   request(app).post('/api/documents')
   .set('Accept', 'application/json')
@@ -75,6 +85,8 @@ test('GET /api/documents/:id', t => {
 
 test('delete a document with a bad id should fail', t => {
 
+  helper.clearDatabase();
+
   const bad_id = 'zozo';
   request(app).delete('/api/documents/' + bad_id)
   .set('Accept', 'application/json')
@@ -88,6 +100,8 @@ test('delete a document with a bad id should fail', t => {
 });
 
 test('DELETE /api/documents/:id', t => {
+
+  helper.clearDatabase();
 
   request(app).post('/api/documents')
   .set('Accept', 'application/json')
@@ -114,6 +128,8 @@ test('DELETE /api/documents/:id', t => {
 
 test('update a document with a bad id should fail', t => {
 
+  helper.clearDatabase();
+
   const bad_id = 'zozo';
   request(app).put('/api/documents/' + bad_id)
   .set('Accept', 'application/json')
@@ -128,6 +144,8 @@ test('update a document with a bad id should fail', t => {
 });
 
 test('PUT /api/documents/:id', t => {
+
+  helper.clearDatabase();
 
   const old_name = 'toto.kiwi';
   const new_name = 'tata.kiwi';
@@ -156,6 +174,8 @@ test('PUT /api/documents/:id', t => {
       .expect('Content-Type', /json/)
       .end((error2, response2) => {
         t.same(response2.body.name, new_name, `document name has been successfully updated`)
+
+        helper.clearDatabase();
         t.end(error2);
       });
     });

@@ -8,7 +8,7 @@ let mongoose = require('mongoose');
 let server = require('../app/app');
 let app = server.app;
 
-test('setup', function(t) {
+test('setup', t => {
   server.connectDataBase(err => {
     t.end(err);
   })
@@ -26,8 +26,8 @@ users_tests();
 let documents_tests = require('./documents');
 documents_tests();
 
-test('teardown', function(t){
-  mongoose.connection.close(function(err) {
+test('teardown', t => {
+  mongoose.connection.close(err => {
     t.end()
   })
 });
