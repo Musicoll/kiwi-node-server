@@ -212,4 +212,65 @@ test('DELETE /api/users/:id with a valid ID should pass', t => {
 
 });
 
+test('Update a user with a bad id should fail', t => {
+
+  helper.clearDatabase();
+
+  const bad_user_id = 123456789;
+
+  request(app).put('/api/users/' + bad_user_id)
+  .set('Accept', 'application/json')
+  .expect(404)
+  .expect('Content-Type', /json/)
+  .end((err, res) => {
+    t.ok(res.body.error === true, `/api/users/${bad_user_id} is not a valid user id`);
+    t.end(err)
+  });
+
+});
+
+test('Updating email with a valid email should pass', t => {
+
+  helper.clearDatabase();
+
+  request(app).post('/api/users')
+  .set('Accept', 'application/json')
+  .send(userTest)
+  .expect(200)
+  .expect('Content-Type', /json/)
+  .end((err, res) => {
+
+    const updated_user = {
+      email: 'johny@gmail.com'
+    }
+
+    const user_id = res.body._id;
+    t.error(err, `user ${user_id} created`)
+
+    request(app).put('/api/users/' + user_id)
+    .set('Accept', 'application/json')
+    .send(updated_user)
+    .expect(200)
+    .expect('Content-Type', /json/)
+    .end((error, response) => {
+
+      t.ok(response.body.error === false, `user ${user_id} successfully updated`);
+
+      User.findById(user_id)
+      .select('email')
+      .then(user => {
+
+        t.same(updated_user.email, user.email, "user email field has been updated")
+        t.end()
+      })
+      .catch(error2 => {
+        t.end(error2)
+      })
+
+    });
+
+  });
+
+});
+
 module.exports = test;
