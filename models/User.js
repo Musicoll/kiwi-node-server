@@ -34,19 +34,18 @@ UserSchema.path('email').validate(function(email) {
  UserSchema.pre('save', function (next) {
 
    let user = this;
-   if(user.isModified('password')) {
-     bcrypt.hash(user.password, SALT_WORK_FACTOR)
-     .then((pwd_hash) => {
-       user.password = pwd_hash;
-       next();
-     })
-     .catch((err) => {
-       next(err);
-     });
+   if(!user.isModified('password')) {
+     next();
    }
-   else {
-     next()
-   }
+
+   bcrypt.hash(user.password, SALT_WORK_FACTOR)
+   .then(pwd_hash => {
+     user.password = pwd_hash;
+     next();
+   })
+   .catch(err => {
+     next(err);
+   });
 
 });
 
