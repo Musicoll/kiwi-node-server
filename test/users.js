@@ -8,6 +8,8 @@ const helper = require('./helper');
 let server = require('../app/app');
 let app = server.app;
 
+let User = require('../models/User');
+
 const userTest = {
   email: 'johndoe@gmail.com',
   password: 'password'
@@ -74,6 +76,44 @@ test('POST /api/users with with valid email and password should pass', t => {
   .end((err, res) => {
     t.error(err, 'user has been created')
     t.end()
+  });
+
+});
+
+test('Password must be hashed in database when creating a new user', t => {
+
+  helper.clearDatabase();
+
+  request(app).post('/api/users')
+  .set('Accept', 'application/json')
+  .send(userTest)
+  .expect(200)
+  .expect('Content-Type', /json/)
+  .end((err, res) => {
+    t.error(err, 'user has been created')
+
+    const user_id = res.body._id;
+
+    User.findById(user_id)
+    .select('+password')
+    .then(user => {
+
+      // test valid then invalid password:
+      user.comparePassword(userTest.password)
+      .then(is_valid => {
+        t.ok(is_valid, 'Comparing raw password with the hashed one must be equal')
+      })
+      .then(() => {
+        user.comparePassword(userTest.password + 'bad_pwd')
+        .then(is_valid => {
+          t.ok(!is_valid, 'Comparing bad raw password with the hashed one must NOT be equal')
+          t.end()
+        })
+      })
+    })
+    .catch(error => {
+      t.end(error)
+    })
   });
 
 });
