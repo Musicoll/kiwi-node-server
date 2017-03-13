@@ -321,4 +321,80 @@ test('Updating password with a valid ID should pass', t => {
 
 });
 
+test('GET /api/users/private should fail if token is not provided', t => {
+
+  helper.clearDatabase();
+
+  request(app).get('/api/users/private')
+  .set('Accept', 'application/json')
+  .expect(403)
+  .expect('Content-Type', /json/)
+  .end((err, res) => {
+
+    t.error(err, 'Can NOT access to /api/users/private when no token provided')
+    t.end(err)
+  });
+
+});
+
+test('GET /api/users/private should fail if token is not valid', t => {
+
+  helper.clearDatabase();
+
+  const invalid_token = 1234567890;
+
+  request(app).get('/api/users/private')
+  .set('Accept', 'application/json')
+  .send({'token': invalid_token})
+  .expect(403)
+  .expect('Content-Type', /json/)
+  .end((err, res) => {
+
+    t.error(err, 'Can NOT access to /api/users/private with an invalid token')
+    t.end(err)
+  });
+
+});
+
+test('GET /api/users/private should pass if a valid token id provided', t => {
+
+  helper.clearDatabase();
+
+  request(app).post('/api/users')
+  .set('Accept', 'application/json')
+  .send(userTest)
+  .expect(200)
+  .expect('Content-Type', /json/)
+  .end((err, res) => {
+    const user_id = res.body._id;
+    t.error(err, `user ${user_id} has been created`)
+
+    // get an API access token
+    request(app).post('/api/auth')
+    .set('Accept', 'application/json')
+    .send(userTest)
+    .expect(200)
+    .expect('Content-Type', /json/)
+    .end((err2, res2) => {
+
+      t.ok('token' in res2.body, 'token has been created')
+      const token = res2.body.token;
+
+      request(app).get('/api/users/private')
+      .set('Accept', 'application/json')
+      .send({'token': token})
+      .expect(200)
+      .expect('Content-Type', /json/)
+      .end((err3, res3) => {
+
+        t.error(err3, 'Can NOT access to /api/users/private when no token provided')
+        t.end()
+      });
+
+    });
+
+  });
+
+});
+
 module.exports = test;
