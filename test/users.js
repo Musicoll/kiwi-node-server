@@ -166,4 +166,50 @@ test('GET /api/users/:id', t => {
 
 });
 
+test('DELETE /api/users/:id with a bad ID should fail', t => {
+
+  helper.clearDatabase();
+
+  const bad_user_id = 123456789;
+
+  request(app).delete('/api/users/' + bad_user_id)
+  .set('Accept', 'application/json')
+  .expect(404)
+  .expect('Content-Type', /json/)
+  .end((err, res) => {
+    t.ok(res.body.error === true, `/api/users/${bad_user_id} is not a valid user id`);
+    t.end(err)
+  });
+
+});
+
+test('DELETE /api/users/:id with a valid ID should pass', t => {
+
+  helper.clearDatabase();
+
+  request(app).post('/api/users')
+  .set('Accept', 'application/json')
+  .send(userTest)
+  .expect(200)
+  .expect('Content-Type', /json/)
+  .end((err, res) => {
+
+    const user_id = res.body._id;
+    t.error(err, `user ${user_id} created`)
+
+    request(app).delete('/api/users/' + user_id)
+    .set('Accept', 'application/json')
+    .expect(200)
+    .expect('Content-Type', /json/)
+    .end((error, response) => {
+
+      t.ok(response.body.error === false, `user ${user_id} successfully deleted`);
+      t.end()
+
+    });
+
+  });
+
+});
+
 module.exports = test;
