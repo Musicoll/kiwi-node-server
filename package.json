@@ -6,7 +6,7 @@
   "scripts": {
     "start": "NODE_ENV=dev node server.js",
     "test": "NODE_ENV=test tape test/tests.js | tap-spec",
-    "travis-test": "NODE_ENV=test tap test/tests.js | tap-spec"
+    "travis-test": "rm -rf coverage && NODE_ENV=test istanbul cover node_modules/.bin/tape test/tests.js | tap-spec"
   },
   "repository": {
     "type": "git",
@@ -34,6 +34,7 @@
     "mongoose": "^4.8.4"
   },
   "devDependencies": {
+    "istanbul": "^0.4.5",
     "supertest": "^3.0.0",
     "tap": "^10.3.0",
     "tap-spec": "^4.1.1",
