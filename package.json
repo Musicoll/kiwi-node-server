@@ -4,8 +4,9 @@
   "description": "Node.js server for Kiwi app",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "start": "NODE_ENV=dev node server.js",
+    "test": "NODE_ENV=test tape test/tests.js | tap-spec",
+    "test-cov": "rm -rf coverage && NODE_ENV=test istanbul cover node_modules/.bin/tape test/tests.js | tap-spec"
   },
   "repository": {
     "type": "git",
@@ -23,10 +24,21 @@
   },
   "homepage": "https://github.com/Musicoll/kiwi-node-server#readme",
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "bluebird": "^3.4.7",
     "body-parser": "^1.16.1",
+    "config": "^1.25.1",
     "ejs": "^2.5.6",
     "express": "^4.14.1",
+    "jsonwebtoken": "^7.3.0",
     "mongoose": "^4.8.4"
+  },
+  "devDependencies": {
+    "coveralls": "^2.12.0",
+    "istanbul": "^0.4.5",
+    "supertest": "^3.0.0",
+    "tap": "^10.3.0",
+    "tap-spec": "^4.1.1",
+    "tape": "^4.6.3"
   }
 }
