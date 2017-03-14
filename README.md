@@ -44,7 +44,6 @@ Or the unit-test with coverage by typing:
 $ npm run test-cov
 ```
 
-
 ## Kiwi REST API
 
 | Route              | HTTP Method |               Description               | Route status       |
@@ -61,3 +60,14 @@ $ npm run test-cov
 | /api/users/:id     | **GET**     | Get informations about a given user     | :white_check_mark: |
 | /api/users/:id     | **PUT**     | Update user informations                | :white_check_mark: |
 | /api/users/:id     | **DELETE**  | Delete a user with a given id           | :white_check_mark: |
+
+## API Documentation
+
+The documentation of the Kiwi API can be regenerated using [apidoc](http://apidocjs.com/).  
+Install apidoc using: `npm install apidoc -g`, then type:
+
+```shell
+$ npm run documentation
+```
+
+it will generate the documentation in ./docs. Open ./docs/index.html to see the documentation.
