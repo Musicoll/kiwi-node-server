@@ -24,7 +24,7 @@
   },
   "homepage": "https://github.com/Musicoll/kiwi-node-server#readme",
   "dependencies": {
-    "bcrypt": "^1.0.2",
+    "bcryptjs": "^2.4.3",
     "bluebird": "^3.4.7",
     "body-parser": "^1.16.1",
     "config": "^1.25.1",
