@@ -14,6 +14,7 @@ const api_paths = {
  * @api {get} / Request API Paths informations
  * @apiName GetApiPaths
  * @apiGroup Global
+ * @apiVersion 0.0.1
  *
  * @apiSuccess {String} auth_url Authorization path.
  * @apiSuccess {String} users_url Path to make User request.
