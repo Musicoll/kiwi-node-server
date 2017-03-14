@@ -2,29 +2,16 @@ language: node_js
 
 sudo: false
 
-env:
-  - CXX=g++-4.8
-
 node_js:
   - "6"
 
-addons:
-  apt:
-    sources:
-    - ubuntu-toolchain-r-test
-    packages:
-    - g++-4.8
-
-before_install:
-  - $CXX --version
-
-install: true
-
 services: mongodb
 
-script:
+install:
   - npm install
 
-after_script:
+script:
   - npm run test-cov
+
+after_script:
   - cat ./coverage/lcov.info | coveralls

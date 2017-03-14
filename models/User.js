@@ -1,5 +1,5 @@
 let mongoose = require('mongoose');
-let bcrypt = require('bcrypt');
+let bcrypt = require('bcryptjs');
 const SALT_WORK_FACTOR = 10;
 
 // Create a User schema
