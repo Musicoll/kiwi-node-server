@@ -46,15 +46,15 @@ $ npm run test-cov
 
 ## Kiwi REST API
 
-| Route              | HTTP Method |               Description               | Route status       |
-|--------------------|:-----------:|:---------------------------------------:|--------------------|
-| /api               | **GET**     | display API routes                      | :white_check_mark: |
+| Route              | HTTP Method |               Description               |       Status       |
+|--------------------|:-----------:|-----------------------------------------|:------------------:|
+| [/api](https://musicoll.github.io/kiwi-node-server/index.html#api-Global-GetApiPaths)               | **GET**     | display API routes                      | :white_check_mark: |
 | /api/auth          | **POST**    | Get an api access token                 | :white_check_mark: |
-| /api/documents     | **GET**     | Get all the documents                   | :white_check_mark: |
-| /api/documents     | **POST**    | Create a new document                   | :white_check_mark: |
-| /api/documents/:id | **GET**     | Get informations about a given document | :white_check_mark: |
-| /api/documents/:id | **DELETE**  | Delete a document with a given id       | :white_check_mark: |
-| /api/documents/:id | **PUT**     | Update a document with a given id       | :white_check_mark: |
+| [/api/documents](https://musicoll.github.io/kiwi-node-server/index.html#api-Documents-GetDocuments)     | **GET**     | Get all the documents                   | :white_check_mark: |
+| [/api/documents](https://musicoll.github.io/kiwi-node-server/index.html#api-Documents-NewDocument)          | **POST**    | Create a new document                   | :white_check_mark: |
+| [/api/documents/:id](https://musicoll.github.io/kiwi-node-server/index.html#api-Documents-GetDocument) | **GET**     | Get informations about a given document | :white_check_mark: |
+| [/api/documents/:id](https://musicoll.github.io/kiwi-node-server/index.html#api-Documents-DeleteDocument) | **DELETE**  | Delete a document with a given id       | :white_check_mark: |
+| [/api/documents/:id](https://musicoll.github.io/kiwi-node-server/index.html#api-Documents-UpdateDocument) | **PUT**     | Update a document with a given id       | :white_check_mark: |
 | /api/users         | **GET**     | Get all the users                       | :white_check_mark: |
 | /api/users         | **POST**    | Create a new user                       | :white_check_mark: |
 | /api/users/:id     | **GET**     | Get informations about a given user     | :white_check_mark: |
