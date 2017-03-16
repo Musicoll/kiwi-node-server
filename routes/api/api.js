@@ -11,7 +11,7 @@ const api_paths = {
 }
 
 /**
- * @api {get} / Request API Paths informations
+ * @api {get} / Request API Paths
  * @apiName GetApiPaths
  * @apiGroup Global
  * @apiVersion 0.0.1
