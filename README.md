@@ -3,6 +3,7 @@
 [![Coverage Status](https://coveralls.io/repos/github/Musicoll/kiwi-node-server/badge.svg?branch=master)](https://coveralls.io/github/Musicoll/kiwi-node-server?branch=master)
 [![Dependency Status](https://david-dm.org/Musicoll/kiwi-node-server.svg)](https://david-dm.org/Musicoll/kiwi-node-server)
 [![devDependencies Status](https://david-dm.org/Musicoll/kiwi-node-server/dev-status.svg)](https://david-dm.org/Musicoll/kiwi-node-server?type=dev)
+[![Documentation](https://img.shields.io/badge/KiwiAPI-documentation-blue.svg)](http://musicoll.github.io/kiwi-node-server/)
 
 kiwi node.js server
 
