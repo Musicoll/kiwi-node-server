@@ -6,7 +6,8 @@
   "scripts": {
     "start": "NODE_ENV=dev node server.js",
     "test": "NODE_ENV=test tape test/tests.js | tap-spec",
-    "test-cov": "rm -rf coverage && NODE_ENV=test istanbul cover node_modules/.bin/tape test/tests.js | tap-spec"
+    "test-cov": "rm -rf coverage && NODE_ENV=test istanbul cover node_modules/.bin/tape test/tests.js | tap-spec",
+    "documentation": "apidoc -i routes/api/ -o docs/"
   },
   "repository": {
     "type": "git",
@@ -23,6 +24,20 @@
     "url": "https://github.com/Musicoll/kiwi-node-server/issues"
   },
   "homepage": "https://github.com/Musicoll/kiwi-node-server#readme",
+  "apidoc": {
+    "name": "Kiwi API",
+    "title": "Kiwi API Documentation",
+    "description": "Kiwi API Documentation",
+    "order": [
+      "Global",
+      "Documents",
+        "GetDocuments",
+        "NewDocument",
+        "GetDocument",
+        "UpdateDocument",
+        "DeleteDocument"
+    ]
+  },
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "bluebird": "^3.4.7",
