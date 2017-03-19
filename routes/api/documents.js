@@ -35,13 +35,15 @@ let PatcherDocument = require('../../models/PatcherDocument');
  *      "_id": "58b1ab53b65b10af1123409e",
  *      "__v": 0,
  *      "updated_at": "2017-02-25T16:05:39.707Z",
- *      "name": "foo.kiwi"
+ *      "name": "foo.kiwi",
+ *      "session_id": "58EA0C2B0F69F0FF"
  *    },
  *    {
  *      "_id": "58b251234647981792b6fd42",
  *      "__v": 0,
  *      "updated_at": "2017-02-26T04:10:57.184Z",
- *      "name": "bar.kiwi"
+ *      "name": "bar.kiwi",
+ *      "session_id": "2BEACC250FD9F9AE"
  *    }
  * ]
  */
@@ -66,6 +68,7 @@ router.get('/', (req, res) => {
  *
  * @apiSuccess {String}   _id Document unique ID.
  * @apiSuccess {String}   name The name of the document.
+ * @apiSuccess {String}   session_id The session id of the document.
  * @apiSuccess {Date}     updated_at Path to make single User request.
  * @apiSuccess {Number}   __v Document api model version number.
  *
@@ -75,7 +78,8 @@ router.get('/', (req, res) => {
  *      "_id": "58b1ab53b65b10af1123409e",
  *      "__v": 0,
  *      "updated_at": "2017-02-25T16:05:39.707Z",
- *      "name": "foo.kiwi"
+ *      "name": "foo.kiwi",
+ *      "session_id": "58EA0C2B0F69F0FF"
  *    }
  *
  */
@@ -99,6 +103,7 @@ router.post('/', (req, res) => {
  *
  * @apiSuccess {String}   _id Document unique ID.
  * @apiSuccess {String}   name The name of the document.
+ * @apiSuccess {String}   session_id The session id of the document.
  * @apiSuccess {Date}     updated_at Path to make single User request.
  * @apiSuccess {Number}   __v Document api model version number.
  *
@@ -108,7 +113,8 @@ router.post('/', (req, res) => {
  *      "_id": "58b1ab53b65b10af1123409e",
  *      "__v": 0,
  *      "updated_at": "2017-02-25T16:05:39.707Z",
- *      "name": "foo.kiwi"
+ *      "name": "foo.kiwi",
+ *      "session_id": "58EA0C2B0F69F0FF"
  *    }
  *
  *
