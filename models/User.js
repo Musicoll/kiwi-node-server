@@ -1,3 +1,7 @@
+/**
+ * User data Model
+ */
+
 let mongoose = require('mongoose');
 let bcrypt = require('bcryptjs');
 const SALT_WORK_FACTOR = 10;
