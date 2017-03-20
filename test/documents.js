@@ -44,6 +44,24 @@ test('POST /api/documents', t => {
 
 });
 
+test('POST /api/documents with an empty name param should set the document title to Untitled', t => {
+
+  helper.clearDatabase();
+
+  request(app).post('/api/documents')
+  .accept('application/json')
+  .send({name: ''})
+  .expect(200)
+  .type('application/json')
+  .end((err, res) => {
+    let doc = res.body;
+    t.ok('name' in doc, "document has a 'name' property");
+    t.ok(doc.name == "Untitled", "document has an Untitled name");
+    t.end(err);
+  });
+
+});
+
 test('GET /api/documents/:id with a bad id', t => {
 
   helper.clearDatabase();
