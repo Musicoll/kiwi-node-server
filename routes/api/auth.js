@@ -17,8 +17,10 @@ let User = require('../../models/User');
  */
 router.post('/', (req, res) => {
 
-  // find the user
-  User.findOne({ email: req.body.email })
+  // find the user by email or username
+  User.findOne({ $or:
+    [ {email: req.body.email}, {username: req.body.username}]
+  })
   .select('_id email +password')
   .then(user => {
 
@@ -57,12 +59,12 @@ router.post('/', (req, res) => {
     }
     else {
       console.log("Authentication failed. User not found.");
-      utils.sendJsonError(res, "Authentication failed.", 404);
+      utils.sendJsonError(res, "Authentication failed.", 401);
     }
   })
   .catch(err => {
     console.log(`Authentication failed. Error : ${err}`);
-    utils.sendJsonError(res, "Authentication failed.", 404);
+    utils.sendJsonError(res, "Authentication failed.", 401);
   })
 });
 

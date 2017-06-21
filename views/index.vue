@@ -11,8 +11,8 @@
         <a class="ui huge primary button" href="https://github.com/Musicoll/Kiwi/releases"><i class="download icon"></i> Download</a>
         <a class="ui github button large" href="https://github.com/Musicoll/Kiwi"><i class="github icon"></i> Github</a>
         <a class="ui large button" href="http://musicoll.mshparisnord.org/">Site du projet Musicoll</a>
-      </div>
 
+      </div>
     </div>
   </div>
 </template>
