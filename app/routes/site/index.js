@@ -92,4 +92,19 @@ router.get('/dashboard', function(req, res) {
     }
 });
 
+// GET a 404 error page for all other routes
+router.all('/*', function(req, res, next) {
+
+    var scope = {
+        data: { title: 'Page not found' },
+        vue: {
+          head: { title: 'Page not found' },
+          components: ['mainMenu'],
+          mixins: [authMixin]
+        }
+    };
+
+    res.status(404).render('notFound', scope)
+});
+
 module.exports = router;
