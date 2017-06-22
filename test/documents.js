@@ -5,7 +5,7 @@ const test = require('tape');
 let request = require('supertest');
 
 const helper = require('./helper');
-let server = require('../app/app');
+let server = require('../app');
 let app = server.app;
 
 test('GET /api/documents', t => {

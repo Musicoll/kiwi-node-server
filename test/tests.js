@@ -5,7 +5,7 @@ const test = require('tape');
 let request = require('supertest');
 let mongoose = require('mongoose');
 
-let server = require('../app/app');
+let server = require('../app');
 let app = server.app;
 
 test('setup', t => {

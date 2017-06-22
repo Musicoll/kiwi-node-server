@@ -1,48 +1,39 @@
 // Load packages
 let path = require('path');
 let express = require('express');
+let session = require('express-session');
 let bodyParser = require('body-parser');
 let config = require('config');
 let db = require('./db');
 let expressVue = require('express-vue');
-let app = express();
 
+let passport = require('passport');
+let LocalStrategy = require('passport-local').Strategy;
+
+// Create the Express application.
+var app = express();
+
+// Use application-level middleware for common functionality, including
+// cookies, parsing, and session handling.
+app.use(require('cookie-parser')());
 app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
+app.use(require('express-session')({ secret: 'keyboard cat', resave: false, saveUninitialized: false }));
 
 // set the view engine
 app.set('vue', {
-  componentsDir: path.join(__dirname, '../views/components'),
+  componentsDir: path.join(__dirname, './views/components'),
   defaultLayout: 'layout'
 });
 
-app.set('views', path.join(__dirname, '../views'));
+app.set('views', path.join(__dirname, './views'));
 app.engine('vue', expressVue);
 app.set('view engine', 'vue');
 
 // set the public directory to serve from static ressources
-app.use('/assets', express.static(__dirname + '/../public'));
+app.use('/assets', express.static(__dirname + '/assets'));
 
-// Website routes
-app.use('/', require('../routes/site/index'));
-
-// API routes
-app.use('/api', require('../routes/api/api'));
-
-// GET a 404 error page for all other routes
-app.all('/*', function(req, res, next) {
-
-    var scope = {
-        data: { title: 'Page not found' },
-        vue: {
-          head: { title: 'Page not found' },
-          components: ['mainMenu']
-        }
-    };
-
-    res.status(404).render('notFound', scope)
-
-});
+require('./routes').setup(app);
 
 connectDataBase = (done) => {
   db.connect(err => {

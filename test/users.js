@@ -5,10 +5,10 @@ const test = require('tape');
 let request = require('supertest');
 
 const helper = require('./helper');
-let server = require('../app/app');
+let server = require('../app');
 let app = server.app;
 
-let User = require('../models/User');
+let User = require('../app/models/User');
 
 const userTest = {
   email: 'johndoe@gmail.com',

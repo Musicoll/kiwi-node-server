@@ -1,5 +1,5 @@
-let User = require('../models/User');
-let PatcherDocument = require('../models/PatcherDocument');
+let User = require('../app/models/User');
+let PatcherDocument = require('../app/models/PatcherDocument');
 
 clearDatabase = () => {
   User.remove({}, err => {

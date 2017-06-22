@@ -1,9 +1,11 @@
 let express = require('express');
 let router = express.Router();
+let util = require('util');
 
 // here
 router.use(function(req, res, next) {
   //console.log('User-Agent: ' + req.get('User-Agent'));
+  //console.log(util.inspect(req, false, null));
   next();
 });
 
