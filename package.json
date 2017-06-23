@@ -52,7 +52,8 @@
     "mongoose": "^4.8.4",
     "mongoose-shortid-nodeps": "^0.6.5",
     "passport": "^0.3.2",
-    "passport-local": "^1.0.0"
+    "passport-local": "^1.0.0",
+    "serve-favicon": "^2.4.3"
   },
   "devDependencies": {
     "coveralls": "^2.12.0",

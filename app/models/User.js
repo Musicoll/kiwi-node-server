@@ -98,5 +98,5 @@ UserSchema.methods.comparePassword = function (pwd) {
 
 };
 
-// Create and export the User model based on the User schema
-module.exports = mongoose.model('User', UserSchema);
+// To avoid mongoose overwriteModelError
+module.exports = (mongoose.models.User) ? mongoose.model('User') : mongoose.model('User', UserSchema);

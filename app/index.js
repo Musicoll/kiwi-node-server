@@ -1,15 +1,18 @@
 // Load packages
 let express = require('express');
 let session = require('express-session');
+let passport = require('passport');
 let bodyParser = require('body-parser');
 let config = require('config');
 let db = require('./db');
-
-let passport = require('passport');
-let LocalStrategy = require('passport-local').Strategy;
+let path = require('path');
+let favicon = require('serve-favicon')
 
 // Create the Express application.
 var app = express();
+
+// view setup
+require('./views').setup(app);
 
 // Use application-level middleware for common functionality, including
 // cookies, parsing, and session handling.
@@ -18,10 +21,16 @@ app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 app.use(require('express-session')({ secret: 'keyboard cat', resave: false, saveUninitialized: false }));
 
+// passport needs to come after session initialization
+const auth = require('./authenticate');
+app.use(passport.initialize());
+app.use(passport.session());
+
+app.use(favicon(path.join(__dirname, 'public', 'favicons', 'favicon.ico')))
+
 // set the public directory to serve from static ressources
 app.use('/assets', express.static(__dirname + '/assets'));
 
-require('./views').setup(app);
 require('./routes').setup(app);
 
 connectDataBase = (done) => {

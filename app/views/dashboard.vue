@@ -3,11 +3,11 @@
   <div class="pusher">
     <div class="ui inverted vertical masthead center aligned segment">
 
-      <main-menu></main-menu>
+      <main-menu :user="user"></main-menu>
 
       <div class="ui text container">
         <h1 class="ui inverted header">KIWI</h1>
-        <h2>Dashboard !!</h2>
+        <h2>Welcome in your Dashboard, {{user.username}} !!</h2>
       </div>
 
     </div>

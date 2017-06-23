@@ -3,7 +3,7 @@
   <div class="pusher">
     <div class="ui inverted vertical masthead center aligned segment">
 
-      <main-menu></main-menu>
+      <main-menu :user="user"></main-menu>
 
       <div class="ui text container">
         <h1 class="ui inverted header">
