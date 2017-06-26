@@ -9,7 +9,7 @@ let path = require('path');
 let favicon = require('serve-favicon')
 
 // Create the Express application.
-var app = express();
+let app = express();
 
 // view setup
 require('./views').setup(app);
@@ -19,7 +19,12 @@ require('./views').setup(app);
 app.use(require('cookie-parser')());
 app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
-app.use(require('express-session')({ secret: 'keyboard cat', resave: false, saveUninitialized: false }));
+
+app.use(require('express-session')({
+  secret: config.secret_session,
+  resave: false,
+  saveUninitialized: false
+}));
 
 // passport needs to come after session initialization
 const auth = require('./authenticate');
