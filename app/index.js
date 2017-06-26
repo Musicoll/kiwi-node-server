@@ -1,12 +1,14 @@
 // Load packages
-let express = require('express');
-let session = require('express-session');
-let passport = require('passport');
-let bodyParser = require('body-parser');
-let config = require('config');
-let db = require('./db');
-let path = require('path');
-let favicon = require('serve-favicon')
+const express = require('express');
+const session = require('express-session');
+const MongoStore = require('connect-mongo')(session);
+const mongoose = require('mongoose');
+const passport = require('passport');
+const bodyParser = require('body-parser');
+const config = require('config');
+const db = require('./db');
+const path = require('path');
+const favicon = require('serve-favicon')
 
 // Create the Express application.
 let app = express();
@@ -20,8 +22,13 @@ app.use(require('cookie-parser')());
 app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 
-app.use(require('express-session')({
+app.use(session({
   secret: config.secret_session,
+  store: new MongoStore({
+    mongooseConnection: mongoose.connection,
+    ttl: (1 * 24 * 60 * 60)
+  }),
+  cookie: { maxAge: (1 * 24 * 60 * 60)},
   resave: false,
   saveUninitialized: false
 }));
