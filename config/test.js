@@ -7,6 +7,6 @@ module.exports = {
 	db_url: 'mongodb://localhost/KiwiAPI-test',
 
 	// JWT private key
-	private_key: 'kiwisupersecretprivatekey007-test'
+	private_key: 'kiwisupersecretprivatekey007-test',
 
 };

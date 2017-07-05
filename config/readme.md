@@ -15,7 +15,7 @@ module.exports = {
 	db_url: 'mongodb://localhost/YourDataBase',
 
 	// JWT private key
-	private_key: 'yoursupersecretprivatekey'
+	private_key: 'yoursupersecretprivatekey',
 
 };
 ```

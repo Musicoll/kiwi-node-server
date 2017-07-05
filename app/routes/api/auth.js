@@ -17,8 +17,10 @@ let User = require('../../models/User');
  */
 router.post('/', (req, res) => {
 
-  // find the user
-  User.findOne({ email: req.body.email })
+  // find the user by email or username
+  User.findOne({ $or:
+    [ {email: req.body.email}, {username: req.body.username}]
+  })
   .select('_id email +password')
   .then(user => {
 
@@ -57,12 +59,12 @@ router.post('/', (req, res) => {
     }
     else {
       console.log("Authentication failed. User not found.");
-      utils.sendJsonError(res, "Authentication failed.", 404);
+      utils.sendJsonError(res, "Authentication failed.", 401);
     }
   })
   .catch(err => {
     console.log(`Authentication failed. Error : ${err}`);
-    utils.sendJsonError(res, "Authentication failed.", 404);
+    utils.sendJsonError(res, "Authentication failed.", 401);
   })
 });
 
@@ -72,8 +74,20 @@ router.post('/', (req, res) => {
 function check() {
   return function(req, res, next) {
 
+    let token = null;
+
+    //console.log(util.inspect(req.cookies))
+
+    // TODO: homogenize the token key names
+
     // check header or url parameters or post parameters for token
-    var token = req.body.token || req.query.token || req.headers['x-access-token'];
+    if(req.cookies && req.cookies.auth_token) {
+      token = req.cookies.auth_token;
+    }
+    else {
+      token = req.body.token || req.query.token || req.headers['x-access-token'];
+    }
+
     if (token) {
       // verifies secret and checks expiration date
       jwt.verify(token, PRIVATE_KEY, function(err, decoded) {
@@ -81,7 +95,6 @@ function check() {
           utils.sendJsonError(res, `Failed to authenticate token: ${err}`, 403);
         }
         else {
-
           // if everything is good, save to request for use in other routes
           req.authenticated = true;
           console.log(util.inspect(decoded, {showHidden: false, depth: null}))

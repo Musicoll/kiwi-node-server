@@ -4,7 +4,7 @@ process.env.NODE_ENV = 'test';
 const test = require('tape');
 let request = require('supertest');
 
-let server = require('../app/app');
+let server = require('../app');
 let app = server.app;
 
 test('GET /api', t => {

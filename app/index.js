@@ -1,32 +1,32 @@
 // Load packages
-let express = require('express');
-let bodyParser = require('body-parser');
-let config = require('config');
-let db = require('./db');
+const express = require('express');
+const passport = require('passport');
+const bodyParser = require('body-parser');
+const config = require('config');
+const db = require('./db');
+const path = require('path');
+const favicon = require('serve-favicon')
 
+// Create the Express application.
 let app = express();
 
+// view setup
+require('./views').setup(app);
+
+// Use application-level middleware for common functionality
 app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 
-// set the view engine
-app.set('view engine', 'ejs')
+// passport needs to come after session initialization
+//const auth = require('./authenticate');
+//app.use(passport.initialize());
+
+app.use(favicon(path.join(__dirname, 'public', 'favicons', 'favicon.ico')))
 
 // set the public directory to serve from static ressources
-app.use('/assets', express.static(__dirname + '/../public'));
+app.use('/assets', express.static(__dirname + '/assets'));
 
-// Website routes
-app.use('/', require('../routes/site/index'));
-
-// API routes
-app.use('/api', require('../routes/api/api'));
-
-// GET a 404 error page for all other routes
-app.all('/*', function(request, response, next) {
-  response
-  .status(404)
-  .render('pages/error404', {title: 'Page not found'})
-});
+require('./routes').setup(app);
 
 connectDataBase = (done) => {
   db.connect(err => {
