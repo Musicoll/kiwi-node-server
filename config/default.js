@@ -9,7 +9,4 @@ module.exports = {
 	// JWT private key
 	private_key: 'kiwisupersecretprivatekey007',
 
-	// express-session private secret key
-	secret_session: 'kiwisupersessionsecret007'
-
 };

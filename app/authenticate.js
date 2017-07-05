@@ -2,6 +2,8 @@ let passport = require('passport');
 let LocalStrategy = require('passport-local').Strategy;
 let User = require('./models/User');
 
+const ApiAuth = require('./routes/api/auth');
+
 passport.serializeUser(function(user, done) {
 	done(null, user._id);
 });
@@ -28,7 +30,6 @@ passport.use(new LocalStrategy({usernameField: 'email' }, function(email, passwo
 				return done(null, user);
 			}
 			else {
-
 				return done(null, false, { msg: 'Invalid password.  Please try again.' });
 			}
 		})
@@ -43,6 +44,7 @@ passport.use(new LocalStrategy({usernameField: 'email' }, function(email, passwo
 }));
 
 exports.isAuthenticated = function(req, res, next) {
+
 	if (req.isAuthenticated()) {
 		return next();
 	}

@@ -1,8 +1,5 @@
 // Load packages
 const express = require('express');
-const session = require('express-session');
-const MongoStore = require('connect-mongo')(session);
-const mongoose = require('mongoose');
 const passport = require('passport');
 const bodyParser = require('body-parser');
 const config = require('config');
@@ -16,27 +13,13 @@ let app = express();
 // view setup
 require('./views').setup(app);
 
-// Use application-level middleware for common functionality, including
-// cookies, parsing, and session handling.
-app.use(require('cookie-parser')());
+// Use application-level middleware for common functionality
 app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 
-app.use(session({
-  secret: config.secret_session,
-  store: new MongoStore({
-    mongooseConnection: mongoose.connection,
-    ttl: (1 * 24 * 60 * 60)
-  }),
-  cookie: { maxAge: (1 * 24 * 60 * 60)},
-  resave: false,
-  saveUninitialized: false
-}));
-
 // passport needs to come after session initialization
-const auth = require('./authenticate');
-app.use(passport.initialize());
-app.use(passport.session());
+//const auth = require('./authenticate');
+//app.use(passport.initialize());
 
 app.use(favicon(path.join(__dirname, 'public', 'favicons', 'favicon.ico')))
 

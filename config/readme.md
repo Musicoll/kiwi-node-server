@@ -17,8 +17,5 @@ module.exports = {
 	// JWT private key
 	private_key: 'yoursupersecretprivatekey',
 
-	// express-session private secret key
-	secret_session: 'yoursupersessionsecret'
-
 };
 ```
