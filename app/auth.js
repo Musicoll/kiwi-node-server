@@ -1,6 +1,7 @@
 // auth.js
 
 const passport = require("passport");
+const LocalStrategy = require('passport-local').Strategy;
 const passportJWT = require("passport-jwt");
 const ExtractJwt = passportJWT.ExtractJwt;
 const JwtStrategy = passportJWT.Strategy;
@@ -13,6 +14,42 @@ const jwtStrategyParams = {
 };
 
 const User = require('./models/User');
+
+passport.use(new LocalStrategy({usernameField: 'username' }, function(username, password, done) {
+
+	User.findOne({ $or: [ {email: username}, {username: username}] })
+	.select('_id email +password')
+  .then(user => {
+
+		if (!user) {
+			// can't find username
+			return done(null, false, { message: 'Bad email/username and password' });
+		}
+
+		user.comparePassword(password)
+		.then(isMatch => {
+			if (isMatch) {
+
+				user = user.toObject();
+
+		    // remove the password field from the payload !
+		    delete user['password'];
+
+				return done(null, user);
+			}
+			else {
+				return done(null, false, { message: 'Invalid password.  Please try again.' });
+			}
+		})
+		.catch(err => {
+			return done(null, false, { message: 'Invalid password.  Please try again.' });
+		});
+	})
+	.catch(err => {
+		return done(null, false, { message: "can't find user" });
+	})
+
+}));
 
 passport.use(new JwtStrategy(jwtStrategyParams, function(jwt_payload, done) {
 

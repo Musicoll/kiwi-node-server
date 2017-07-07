@@ -11,6 +11,7 @@ let app = server.app;
 let User = require('../app/models/User');
 
 const userTest = {
+  username: 'johndoe',
   email: 'johndoe@gmail.com',
   password: 'password'
 }
