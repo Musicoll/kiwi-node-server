@@ -337,15 +337,15 @@ test('GET /api/users/private should fail if token is not provided', t => {
 
 });
 
-test('GET /api/users/private should fail if token is not valid', t => {
+test('GET /api/users/private should fail with malformed token', t => {
 
   helper.clearDatabase();
 
-  const invalid_token = 1234567890;
+  const invalid_token = '1234567890';
 
   request(app).get('/api/users/private')
   .set('Accept', 'application/json')
-  .send({'token': invalid_token})
+  .set('Authorization', 'JWT ' + invalid_token)
   .expect(403)
   .expect('Content-Type', /json/)
   .end((err, res) => {
@@ -356,7 +356,7 @@ test('GET /api/users/private should fail if token is not valid', t => {
 
 });
 
-test('GET /api/users/private should pass if a valid token id provided', t => {
+test('GET /api/users/private should pass if a valid token id is provided', t => {
 
   helper.clearDatabase();
 
@@ -370,7 +370,7 @@ test('GET /api/users/private should pass if a valid token id provided', t => {
     t.error(err, `user ${user_id} has been created`)
 
     // get an API access token
-    request(app).post('/api/auth')
+    request(app).post('/api/login')
     .set('Accept', 'application/json')
     .send(userTest)
     .expect(200)
@@ -382,7 +382,7 @@ test('GET /api/users/private should pass if a valid token id provided', t => {
 
       request(app).get('/api/users/private')
       .set('Accept', 'application/json')
-      .send({'token': token})
+      .set('Authorization', 'JWT ' + token)
       .expect(200)
       .expect('Content-Type', /json/)
       .end((err3, res3) => {

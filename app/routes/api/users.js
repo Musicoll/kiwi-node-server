@@ -6,13 +6,12 @@ let util = require('util');
 // Get the user model
 let User = require('../../models/User');
 
-let auth = require('./auth');
+let auth = require('../../auth')();
 
 // GET /users/private (temporary private dummy endpoint)
-router.get('/private', auth.check(), (req, res) => {
+router.get('/private', auth.authenticate(), (req, res, next) => {
 
-  console.log(`authenticated : ${req.authenticated}`);
-  res.json({message: "Authenticated !"})
+  res.json({message: "Authenticated !", user: req.user})
 
 });
 

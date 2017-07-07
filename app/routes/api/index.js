@@ -37,7 +37,7 @@ router.get('/', (req, res, next) => {
 });
 
 // Authentication endpoint
-router.use('/auth', require('./auth').router);
+router.post('/login', require('./auth').login);
 
 // documents endpoints
 router.use('/documents', require('./documents'));
