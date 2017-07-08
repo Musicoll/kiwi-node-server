@@ -2,10 +2,10 @@
  * Patcher document data Model
  */
 
-let mongoose = require('mongoose');
-let shortId = require('mongoose-shortid-nodeps');
+const mongoose = require('mongoose');
+const shortId = require('mongoose-shortid-nodeps');
 
-let PatcherDocumentSchema = new mongoose.Schema({
+const PatcherDocumentSchema = new mongoose.Schema({
   session_id: {
     type: shortId,
     len: 16,

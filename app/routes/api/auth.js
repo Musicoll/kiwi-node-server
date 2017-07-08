@@ -1,118 +1,34 @@
-let router = require('express').Router();
-let jwt = require('jsonwebtoken');
-let utils = require('./utils');
-
-const util = require('util')
-
+const passport = require('passport')
+const jwt = require('jsonwebtoken');
 const PRIVATE_KEY = require('config').private_key
 
-// Get the user model
-let User = require('../../models/User');
+const User = require('../../models/User');
 
 /**
- * POST /api/auth endpoint route
+ * POST /api/login endpoint route
  * Send a POST HTTP request to this endpoint providing a valid email/password key-pair to get an API access token.
  * @return {Object} A JSON object with an api access token if success,
  * otherwise a JSON Authentication failed message
  */
-router.post('/', (req, res) => {
+module.exports.login = function(req, res, next) {
 
-  // find the user by email or username
-  User.findOne({ $or:
-    [ {email: req.body.email}, {username: req.body.username}]
-  })
-  .select('_id email +password')
-  .then(user => {
+  passport.authenticate('local', {session: false}, function(err, user, info) {
+    if (err) { return next(err) }
+    if (!user) { return res.status(401).json(info); }
 
-    if(user) {
+    const payload = {id: user._id}
 
-      user.comparePassword(req.body.password)
-      .then(is_valid => {
-        if(is_valid) {
+    // user is found and password is right, create and return the token
+    let token = jwt.sign(payload, PRIVATE_KEY, {
+      expiresIn: '24h'
+    });
 
-          user = user.toObject();
+    // return the information including token as JSON
+    res.json({
+      success: true,
+      message: 'Authentication success!',
+      token: token
+    });
+  })(req, res, next);
 
-          // remove the password field from the token
-          delete user['password'];
-
-          // user is found and password is right, create and return the token
-          let token = jwt.sign(user, PRIVATE_KEY, {
-            expiresIn: '24h'
-          });
-
-          // return the information including token as JSON
-          res.json({
-            success: true,
-            message: 'Authentication success!',
-            token: token
-          });
-        }
-        else {
-          console.log(`Authentication failed. Wrong password !`);
-          utils.sendJsonError(res, "Authentication failed.", 500);
-        }
-      })
-      .catch(err => {
-        console.log(`Authentication failed. Wrong password ! ${err}`);
-        utils.sendJsonError(res, "Authentication failed.", 500);
-      })
-    }
-    else {
-      console.log("Authentication failed. User not found.");
-      utils.sendJsonError(res, "Authentication failed.", 401);
-    }
-  })
-  .catch(err => {
-    console.log(`Authentication failed. Error : ${err}`);
-    utils.sendJsonError(res, "Authentication failed.", 401);
-  })
-});
-
-/**
- * Verify the validity of a an access token
- */
-function check() {
-  return function(req, res, next) {
-
-    let token = null;
-
-    //console.log(util.inspect(req.cookies))
-
-    // TODO: homogenize the token key names
-
-    // check header or url parameters or post parameters for token
-    if(req.cookies && req.cookies.auth_token) {
-      token = req.cookies.auth_token;
-    }
-    else {
-      token = req.body.token || req.query.token || req.headers['x-access-token'];
-    }
-
-    if (token) {
-      // verifies secret and checks expiration date
-      jwt.verify(token, PRIVATE_KEY, function(err, decoded) {
-        if (err) {
-          utils.sendJsonError(res, `Failed to authenticate token: ${err}`, 403);
-        }
-        else {
-          // if everything is good, save to request for use in other routes
-          req.authenticated = true;
-          console.log(util.inspect(decoded, {showHidden: false, depth: null}))
-          //req.user = decoded.user;
-          console.log(`decoded.user : ${decoded.email}`);
-          return next();
-        }
-      });
-    }
-    else {
-      // if there is no token
-      // return an error
-      utils.sendJsonError(res, "No token provided", 403);
-    }
-  }
-}
-
-module.exports = {
-  router: router,
-  check: check
 }

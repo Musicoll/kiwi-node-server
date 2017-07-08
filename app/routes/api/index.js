@@ -1,6 +1,5 @@
-let express = require('express');
-let router = express.Router();
-let utils = require('./utils');
+const router = require('express').Router();
+const utils = require('./utils');
 
 const api_paths = {
   auth_url:       "/auth",
@@ -37,7 +36,7 @@ router.get('/', (req, res, next) => {
 });
 
 // Authentication endpoint
-router.use('/auth', require('./auth').router);
+router.post('/login', require('./auth').login);
 
 // documents endpoints
 router.use('/documents', require('./documents'));

@@ -18,8 +18,8 @@ app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 
 // passport needs to come after session initialization
-//const auth = require('./authenticate');
-//app.use(passport.initialize());
+const auth = require('./auth')();
+app.use(auth.initialize());
 
 app.use(favicon(path.join(__dirname, 'public', 'favicons', 'favicon.ico')))
 
