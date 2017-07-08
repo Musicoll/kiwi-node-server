@@ -18,7 +18,7 @@ const User = require('./models/User');
 passport.use(new LocalStrategy({usernameField: 'username' }, function(username, password, done) {
 
 	User.findOne({ $or: [ {email: username}, {username: username}] })
-	.select('_id email +password')
+	.select('_id +password')
   .then(user => {
 
 		if (!user) {

@@ -1,9 +1,6 @@
-let express = require('express');
-let router = express.Router();
-let utils = require('./utils');
-
-// Create a model based on the schema
-let PatcherDocument = require('../../models/PatcherDocument');
+const router = require('express').Router();
+const utils = require('./utils');
+const PatcherDocument = require('../../models/PatcherDocument');
 
 /**
  * @apiDefine DocumentNotFoundError

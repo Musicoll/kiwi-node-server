@@ -1,5 +1,4 @@
-let express = require('express');
-let router = express.Router();
+const router = require('express').Router();
 
 class GlobalScope {
   constructor(req) {

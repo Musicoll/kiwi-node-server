@@ -1,14 +1,8 @@
-let router = require('express').Router();
-let jwt = require('jsonwebtoken');
-let utils = require('./utils');
-
-const util = require('util')
 const passport = require('passport')
-
+const jwt = require('jsonwebtoken');
 const PRIVATE_KEY = require('config').private_key
 
-// Get the user model
-let User = require('../../models/User');
+const User = require('../../models/User');
 
 /**
  * POST /api/login endpoint route
