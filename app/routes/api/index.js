@@ -44,6 +44,9 @@ router.use('/documents', require('./documents'));
 // users endpoints
 router.use('/users', require('./users'));
 
+// drive endpoints
+router.use('/drive', require('./drive'));
+
 // Send an invalid api path error message for all other routes
 router.all('/*', (req, res, next) => {
   utils.sendJsonError(res, "Invalid api path !", 404);

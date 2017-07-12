@@ -22,7 +22,9 @@ const UserSchema = new mongoose.Schema({
     select: false
   },
 
-  username: String
+  username: String,
+
+  //documentsRoot: mongoose.Schema.ObjectId
 
 }, { strict: true });
 

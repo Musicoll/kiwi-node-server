@@ -24,11 +24,8 @@ module.exports.login = function(req, res, next) {
     });
 
     // return the information including token as JSON
-    res.json({
-      success: true,
-      message: 'Authentication success!',
-      token: token
-    });
+    res.json({ token: token });
+    
   })(req, res, next);
 
 }
