@@ -3,11 +3,10 @@
  */
 
 const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 const materialized = require('mongoose-materialized');
 
-//const fileTypes = ['', '','c']
-
-let FileSchema = new mongoose.Schema({
+let FileSchema = new Schema({
 
   name: {
     type: String,
@@ -24,11 +23,10 @@ let FileSchema = new mongoose.Schema({
     default: Date.now
   },
 
-  /*
   createdBy: {
-    type: ObjectId
+    type: Schema.Types.ObjectId,
+    ref: 'User'
   }
-  */
 
 });
 

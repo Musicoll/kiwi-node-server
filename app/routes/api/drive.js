@@ -1,9 +1,8 @@
 const router = require('express').Router();
 const utils = require('./utils');
 const FileModel = require('../../models/File');
-
 const Drive = require('../../controllers/drive');
-
+const auth = require('../../auth')();
 
 router.get('/', (req, res) => {
 
@@ -18,19 +17,10 @@ router.get('/', (req, res) => {
 
 });
 
-router.post('/', (req, res) => {
-
-  FileModel.create(req.body)
-  .then(file => { res.json(file); })
-  .catch(err => {
-    utils.sendJsonError(res, "Error creating file", 500);
-  });
-
-});
-
 router.get('/folder/:id', (req, res) => {
 
   FileModel.findById(req.params.id)
+  .populate('createdBy')
   .then(folder => {
     // returns the folder's subtree
     folder.getTree(function(err, files) {
@@ -44,9 +34,9 @@ router.get('/folder/:id', (req, res) => {
 });
 
 // id du dossier où placer le nouveau dossier ou fichier
-router.post('/:id', (req, res) => {
+router.post('/:id', auth.authenticate(), (req, res) => {
 
-  let drive = new Drive();
+  let drive = new Drive(req.user);
 
   drive.add(req.params.id, {
     name: req.body.name || '',
@@ -54,6 +44,21 @@ router.post('/:id', (req, res) => {
   })
   .then(file => {
     res.json(file);
+  })
+  .catch(err => {
+    utils.sendJsonError(res, err.message, err.status);
+  });
+
+});
+
+// id du dossier ou fichier à supprimer.
+router.delete('/:id', auth.authenticate(), (req, res) => {
+
+  let drive = new Drive(req.user);
+
+  drive.remove(req.params.id)
+  .then(message => {
+    res.json(message);
   })
   .catch(err => {
     utils.sendJsonError(res, err.message, err.status);

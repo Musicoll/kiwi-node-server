@@ -17,9 +17,12 @@ let Drive = class Drive {
    */
   add(folderId, fileOptions = {}) {
 
+    const userId = this.user._id;
+
     const options = Object.assign({}, {
       name: 'Untitled',
       isFolder: false,
+      createdBy: userId
     }, fileOptions);
 
     return new Promise((resolve, reject) => {
@@ -40,6 +43,25 @@ let Drive = class Drive {
       })
       .catch(err => reject({status: 404, message: 'FolderNotFound'}));
 
+    });
+  };
+
+  /**
+   * Remove a file or a folder.
+   * @param {String} folderId - the ObjectId of the file/folder to delete.
+   * @return {Promise} A Promise
+   */
+  remove(fileId) {
+    return new Promise((resolve, reject) => {
+      FileModel.findById(fileId).exec()
+      .then(file => {
+        let name = file.name;
+        let isFolder = file.isFolder;
+        file.remove()
+        .then(resolve({message: (isFolder ? 'Folder' : 'File') + ' "' + name + '" removed'}))
+        .catch(err => reject({status: 500, message: 'DeleteFileError'}))
+      })
+      .catch(err => reject({status: 404, message: 'FileNotFound'}));
     });
   }
 }
