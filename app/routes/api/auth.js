@@ -12,20 +12,28 @@ const User = require('../../models/User');
  */
 module.exports.login = function(req, res, next) {
 
-  passport.authenticate('local', {session: false}, function(err, user, info) {
+  passport.authenticate('local', {session: false}, function(err, auth_user, info) {
     if (err) { return next(err) }
-    if (!user) { return res.status(401).json(info); }
+    if (!auth_user) { return res.status(401).json(info); }
 
-    const payload = {id: user._id}
+    User.findById(auth_user._id)
+      .then(user => {
 
-    // user is found and password is right, create and return the token
-    let token = jwt.sign(payload, PRIVATE_KEY, {
-      expiresIn: '24h'
-    });
+        const payload = {id: user._id}
 
-    // return the information including token as JSON
-    res.json({ token: token });
-    
+        // user is found and password is right, create and return the token
+        let token = jwt.sign(payload, PRIVATE_KEY, {
+          expiresIn: '24h'
+        });
+
+        // Return user informations with the JWT.
+        res.json({ user: user, token: token });
+      })
+      .catch(err => {
+        console.log(`User ${req.params.id} can not be find : ${err}`);
+        utils.sendJsonError(res, `User ${req.params.id} can not be find`, 404);
+      });
+
   })(req, res, next);
 
 }
