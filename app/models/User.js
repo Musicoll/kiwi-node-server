@@ -4,10 +4,18 @@
 
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
+const shortId = require('mongoose-shortid-nodeps');
 const SALT_WORK_FACTOR = 10;
 
 // Create a User schema
 const UserSchema = new mongoose.Schema({
+
+  _id: {
+    type: shortId,
+    len: 16,
+    base: 16,
+    index: true
+  },
 
   email: {
     type: String,
