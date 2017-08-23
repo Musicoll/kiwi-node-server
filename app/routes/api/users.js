@@ -51,12 +51,16 @@ router.post('/', function (req, res) {
 // GET /users/:id
 router.get('/:id', (req, res) => {
 
-  User.findById(req.params.id)
-    .then(user => { res.json(user) })
-    .catch(err => {
-      console.log(`User ${req.params.id} can not be find : ${err}`);
-      utils.sendJsonError(res, `User ${req.params.id} can not be find`, 404);
-    });
+  const user_id = req.params.id;
+
+  User.findById(user_id, (err, user) => {
+    if(err || !user) {
+      utils.sendJsonError(res, `User ${user_id} not found`, 404);
+    }
+    else {
+      res.json(user)
+    }
+  });
 
 });
 
@@ -66,28 +70,32 @@ router.delete('/:id', (req, res, next) => {
   // Todo: return an error when deleting a user already deleted
   // for now this returns a success message :(
 
-  User.findByIdAndRemove(req.params.id)
-    .then(user => {
-      res.json({"error" : false, "message" : "user " + req.params.id + " deleted"});
-    })
-    .catch(err => {
-      console.log(`Deleting user ${req.params.id} failed : ${err}`);
-      utils.sendJsonError(res, `Deleting user ${req.params.id} failed`, 404);
-    });
+  const user_id = req.params.id;
+
+  User.findByIdAndRemove(user_id, (err, user) => {
+    if(err || !user) {
+      utils.sendJsonError(res, `Deleting user ${user_id} failed`, 404);
+    }
+    else {
+      res.json({"error" : false, "message" : `user ${user_id} deleted`});
+    }
+  });
 
 });
 
 // PUT /users/:id
 router.put('/:id', (req, res, next) => {
 
-  User.findByIdAndUpdate(req.params.id, req.body, { runValidators: true })
-    .then(user => {
-      res.json({"error" : false, "message" : "user " + req.params.id + " updated"});
-    })
-    .catch(err => {
-      console.error(`Updating user failed : ${err}`);
+  const user_id = req.params.id;
+
+  User.findByIdAndUpdate(user_id, req.body, { runValidators: true }, (err, user) => {
+    if(err || !user) {
       utils.sendJsonError(res, "Updating user failed", 404);
-    });
+    }
+    else {
+      res.json({"error" : false, "message" : `user ${user_id} updated`});
+    }
+  });
 
 });
 

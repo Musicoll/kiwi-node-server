@@ -128,7 +128,7 @@ test('GET /api/users/:id with an invalid ID should fail', t => {
   .expect(404)
   .expect('Content-Type', /json/)
   .end((err, res) => {
-    t.ok(res.body.error === true, '/api/users/007 is not a valid user id');
+    t.ok(res.body.error === true, '007 is not a valid user id');
     t.end(err)
   });
 
