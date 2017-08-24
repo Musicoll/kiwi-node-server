@@ -76,6 +76,8 @@ test('POST /api/users with with valid email and password should pass', t => {
   .expect('Content-Type', /json/)
   .end((err, res) => {
     t.error(err, 'user has been created')
+    t.ok('email' in res.body, "User has an 'email' property");
+    t.notOk('password' in res.body, "Contains 'password' field");
     t.end()
   });
 

@@ -42,6 +42,15 @@ UserSchema.path('email').validate(function(email) {
 }, 'The e-mail is not valid !')
 
 /**
+ * override the toJSON method for the UserModel to always omit the password field
+ */
+UserSchema.methods.toJSON = function() {
+  let obj = this.toObject();
+  delete obj.password
+  return obj;
+}
+
+/**
  * Password Hashing Middleware
  * hash the password if it's a new password or if it has been modified.
  */
