@@ -21,13 +21,15 @@ module.exports.login = function(req, res, next) {
 
         const payload = {id: user._id}
 
+        let user_obj = user.toObject();
+
         // user is found and password is right, create and return the token
-        let token = jwt.sign(payload, PRIVATE_KEY, {
+        user_obj.token = jwt.sign(payload, PRIVATE_KEY, {
           expiresIn: '24h'
         });
 
         // Return user informations with the JWT.
-        res.json({ user: user, token: token });
+        res.json({ user: user_obj });
       })
       .catch(err => {
         console.log(`User ${req.params.id} can not be find : ${err}`);

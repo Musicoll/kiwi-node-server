@@ -380,8 +380,10 @@ test('GET /api/users/private should pass if a valid token id is provided', t => 
     .expect('Content-Type', /json/)
     .end((err2, res2) => {
 
-      t.ok('token' in res2.body, 'token has been created')
-      const token = res2.body.token;
+      t.ok('user' in res2.body, 'has user')
+      let user = res2.body.user;
+      t.ok('token' in user, 'user has token')
+      const token = user.token;
 
       request(app).get('/api/users/private')
       .set('Accept', 'application/json')
