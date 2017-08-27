@@ -28,24 +28,19 @@ router.post('/', function (req, res) {
 
   let newuser = new User(req.body);
 
-  newuser.save()
-  .then(user => { res.json(user) })
-  .catch(err => {
-    console.log(`Creating new user failed : ${err.message}`);
+  newuser.save((err, user) => {
+    if(err) {
 
-    if('email' in err.errors)
-    {
-      utils.sendJsonError(res, `${err.errors.email.message}`, 206);
+      console.log(`Creating new user failed : ${err.message}`);
+      utils.sendJsonError(res, `${err.message}`, 206);
     }
-    else if('password' in err.errors)
-    {
-      utils.sendJsonError(res, `${err.errors.password.message}`, 206);
-    }
-    else {
+    else if(!user) {
       utils.sendJsonError(res, `Creating new user failed`, 500);
     }
-  })
-
+    else {
+      res.json({user: user})
+    }
+  });
 });
 
 // GET /users/:id
