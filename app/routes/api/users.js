@@ -31,8 +31,24 @@ router.post('/', function (req, res) {
   newuser.save((err, user) => {
     if(err) {
 
-      console.log(`Creating new user failed : ${err.message}`);
-      utils.sendJsonError(res, `${err.message}`, 206);
+      // Get the user's fields
+      const fields = User.schema.paths;
+      let errorMessage = "";
+
+      for (let field in fields){
+          if (err.errors[field]) {
+            errorMessage += `- ${err.errors[field].message}`;
+            errorMessage += "\n";
+            
+            console.log(`"${field}" error: ${err.errors[field].message}`);
+          }
+      }
+
+      if(!errorMessage){
+        errorMessage = err.message;
+      }
+
+      utils.sendJsonError(res, errorMessage, 206);
     }
     else if(!user) {
       utils.sendJsonError(res, `Creating new user failed`, 500);
