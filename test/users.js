@@ -83,7 +83,7 @@ test('POST /api/users with with duplicate email should fail', t => {
     request(app).post('/api/users')
     .set('Accept', 'application/json')
     .send(userTest)
-    .expect(206)
+    .expect(400)
     .expect('Content-Type', /json/)
     .end((err, res) => {
 

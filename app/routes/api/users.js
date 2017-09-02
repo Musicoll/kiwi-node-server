@@ -31,6 +31,12 @@ router.post('/', function (req, res) {
   newuser.save((err, user) => {
     if(err) {
 
+      //duplicate key
+      if (err.code === 11000) {
+        utils.sendJsonError(res, 'User already exists', 400);
+        return;
+      }
+
       // Get the user's fields
       const fields = User.schema.paths;
       let errorMessage = "";
@@ -39,7 +45,7 @@ router.post('/', function (req, res) {
           if (err.errors[field]) {
             errorMessage += `- ${err.errors[field].message}`;
             errorMessage += "\n";
-            
+
             console.log(`"${field}" error: ${err.errors[field].message}`);
           }
       }

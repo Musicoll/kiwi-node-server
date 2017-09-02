@@ -38,7 +38,6 @@ test('POST /api/documents', t => {
     t.ok(doc.name == "toto.kiwi", "document name has been set");
     t.ok('_id' in doc, "document has an '_id' property");
     t.ok('session_id' in doc, "document has a 'session_id' property");
-    t.ok('updated_at' in doc, "document has an 'updated_at' property");
     t.end(err);
   });
 
