@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------- //
+// Drive Router
+// ------------------------------------------------------------------------- //
+
 const router = require('express').Router();
 const utils = require('./utils');
 const FileModel = require('../../models/File');
@@ -39,6 +43,23 @@ router.post('/:id', auth.authenticate(), (req, res) => {
   let drive = new Drive(req.user);
 
   drive.add(req.params.id, {
+    name: req.body.name || '',
+    isFolder: req.body.isFolder || false,
+  })
+  .then(file => {
+    res.json(file);
+  })
+  .catch(err => {
+    utils.sendJsonError(res, err.message, err.status);
+  });
+
+});
+
+router.post('/', auth.authenticate(), (req, res) => {
+
+  let drive = new Drive(req.user);
+
+  drive.add(null, {
     name: req.body.name || '',
     isFolder: req.body.isFolder || false,
   })

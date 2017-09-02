@@ -1,13 +1,12 @@
 // ------------------------------------------------------------------------- //
-// File Model
+// Permission Model
 // ------------------------------------------------------------------------- //
 
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const shortId = require('mongoose-shortid-nodeps');
-const materialized = require('mongoose-materialized');
 
-let FileSchema = new Schema({
+let PermissionSchema = new Schema({
 
   _id: {
     type: shortId,
@@ -16,14 +15,14 @@ let FileSchema = new Schema({
     unique: true
   },
 
-  name: {
+  role: {
     type: String,
-    default: 'Untitled'
+    default: 'reader'
   },
 
-  isFolder: {
-    type: Boolean,
-    default: false
+  user: {
+    type: shortId,
+    ref: 'User'
   },
 
   createdAt: {
@@ -31,20 +30,8 @@ let FileSchema = new Schema({
     default: Date.now
   },
 
-  createdBy: {
-    type: shortId,
-    ref: 'User'
-  }
-
-/*
-  doc: {
-    type: shortId,
-    ref: 'PatcherDocument'
-  },
-*/
-
 });
 
-FileSchema.plugin(materialized);
+PermissionSchema.plugin(materialized);
 
-module.exports = mongoose.model('File', FileSchema);
+module.exports = mongoose.model('Permission', PermissionSchema);

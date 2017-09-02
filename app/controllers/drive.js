@@ -1,12 +1,16 @@
-/**
-Drive Controller
-*/
+// ------------------------------------------------------------------------- //
+// Drive Controller
+// ------------------------------------------------------------------------- //
 
 const FileModel = require('../models/File');
 
 let Drive = class Drive {
   constructor(user) {
     this.user = user;
+  }
+
+  getUserRootFolder(){
+    // return this.user.rootFolder (?)
   }
 
   /**
@@ -27,22 +31,60 @@ let Drive = class Drive {
 
     return new Promise((resolve, reject) => {
 
-      FileModel.findById(folderId).exec()
-      .then(parentFile => {
+      if(folderId == null) {
 
-        if(parentFile.isFolder == true) {
+        console.log("create a root folder");
 
-          parentFile.appendChild(options, function(err, data) {
-            if(err) { reject({status: 500, message: 'CreatingFileError'}) }
-            else    { resolve(data); }
-          });
-        }
-        else {
-          reject({status: 404, message: 'IsNotAFolder'});
-        }
-      })
-      .catch(err => reject({status: 404, message: 'FolderNotFound'}));
+        let folder = new FileModel({name: userId, isFolder: true});
+        folder.save()
+        .then(rootFolder => {
+          if(rootFolder) {
+            rootFolder.appendChild(options, function(err, data) {
+              if(err || !data) {
+                reject({status: 500, message: 'CreatingFileError'})
+              }
+              else {
+                console.log(`file created`);
+                resolve(data);
+               }
+            });
+          }
+          else {
+            reject({status: 500, message: 'CreatingRootError'})
+          }
+        })
+        .catch(err => {
+          reject({status: 500, message: 'CreatingRootError'})
+        });
+      }
+      else {
+        console.log(`FileModel.findById(${folderId})`);
 
+        FileModel.findById(folderId).exec()
+        .then(parentFile => {
+
+          console.log(`Found parentFile (${parentFile})`);
+
+          if(parentFile.isFolder == true) {
+
+            console.log(`parentFile is Folder`);
+
+            parentFile.appendChild(options, function(err, data) {
+              if(err || !data) {
+                reject({status: 500, message: 'CreatingFileError'})
+              }
+              else {
+                console.log(`file created`);
+                resolve(data);
+               }
+            });
+          }
+          else {
+            reject({status: 404, message: 'IsNotAFolder'});
+          }
+        })
+        .catch(err => reject({status: 404, message: 'FolderNotFound'}));
+      }
     });
   };
 
