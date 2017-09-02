@@ -54,13 +54,45 @@ test('Create a new user with only email provided should fail', t => {
 
   request(app).post('/api/users')
   .set('Accept', 'application/json')
-  .send({email: 'toto@gmail.com'})
+  .send({email: userTest.email})
   .expect(206)
   .expect('Content-Type', /json/)
   .end((err, res) => {
     t.error(err, 'request failed')
     t.ok(res.body.error === true, 'response has an error')
     t.end()
+  });
+
+});
+
+test('POST /api/users with with duplicate email should fail', t => {
+
+  helper.clearDatabase();
+
+  let usermail = userTest.email;
+
+  request(app).post('/api/users')
+  .set('Accept', 'application/json')
+  .send(userTest)
+  .expect(200)
+  .expect('Content-Type', /json/)
+  .end((err, res) => {
+
+    t.error(err, 'user has been created')
+
+    request(app).post('/api/users')
+    .set('Accept', 'application/json')
+    .send(userTest)
+    .expect(400)
+    .expect('Content-Type', /json/)
+    .end((err, res) => {
+
+      t.error(err, 'request failed')
+      t.ok(res.body.error === true, 'response has an error')
+      t.end()
+
+    });
+
   });
 
 });
@@ -76,6 +108,10 @@ test('POST /api/users with with valid email and password should pass', t => {
   .expect('Content-Type', /json/)
   .end((err, res) => {
     t.error(err, 'user has been created')
+    t.ok('user' in res.body, "Has user object");
+    let user = res.body.user;
+    t.ok('email' in user, "Contains an 'email' property");
+    t.notOk('password' in user, "Contains a 'password' property");
     t.end()
   });
 
@@ -93,7 +129,7 @@ test('Password must be hashed in database when creating a new user', t => {
   .end((err, res) => {
     t.error(err, 'user has been created')
 
-    const user_id = res.body._id;
+    const user_id = res.body.user._id;
 
     User.findById(user_id)
     .select('+password')
@@ -128,7 +164,7 @@ test('GET /api/users/:id with an invalid ID should fail', t => {
   .expect(404)
   .expect('Content-Type', /json/)
   .end((err, res) => {
-    t.ok(res.body.error === true, '/api/users/007 is not a valid user id');
+    t.ok(res.body.error === true, '007 is not a valid user id');
     t.end(err)
   });
 
@@ -145,7 +181,7 @@ test('GET /api/users/:id', t => {
   .expect('Content-Type', /json/)
   .end((err, res) => {
     t.error(err, 'user has been created')
-    const user_id = res.body._id;
+    const user_id = res.body.user._id;
 
     request(app).get('/api/users/' + user_id)
     .set('Accept', 'application/json')
@@ -155,10 +191,12 @@ test('GET /api/users/:id', t => {
 
       t.error(error, 'user infos can be retrieved with an ID')
 
-      t.ok('email' in response.body, "User has an 'email' property");
-      t.ok('_id' in response.body, "User has an '_id' property");
-      t.same(user_id, res.body._id, 'User ID match user creation ID')
-      t.notOk('password' in response.body, "Password field is NOT returned");
+      let user = response.body;
+
+      t.ok('email' in user, "User has an 'email' property");
+      t.ok('_id' in user, "User has an '_id' property");
+      t.same(user_id, user._id, 'User ID match user creation ID')
+      t.notOk('password' in user, "Password field is NOT returned");
 
       t.end()
     });
@@ -195,7 +233,7 @@ test('DELETE /api/users/:id with a valid ID should pass', t => {
   .expect('Content-Type', /json/)
   .end((err, res) => {
 
-    const user_id = res.body._id;
+    const user_id = res.body.user._id;
     t.error(err, `user ${user_id} created`)
 
     request(app).delete('/api/users/' + user_id)
@@ -245,7 +283,7 @@ test('Updating email with a valid email should pass', t => {
       email: 'johny@gmail.com'
     }
 
-    const user_id = res.body._id;
+    const user_id = res.body.user._id;
     t.error(err, `user ${user_id} created`)
 
     request(app).put('/api/users/' + user_id)
@@ -289,7 +327,7 @@ test('Updating password with a valid ID should pass', t => {
       password: 'newpassword'
     }
 
-    const user_id = res.body._id;
+    const user_id = res.body.user._id;
     t.error(err, `user ${user_id} created`)
 
     request(app).put('/api/users/' + user_id)
@@ -367,7 +405,7 @@ test('GET /api/users/private should pass if a valid token id is provided', t => 
   .expect(200)
   .expect('Content-Type', /json/)
   .end((err, res) => {
-    const user_id = res.body._id;
+    const user_id = res.body.user._id;
     t.error(err, `user ${user_id} has been created`)
 
     // get an API access token
@@ -378,8 +416,10 @@ test('GET /api/users/private should pass if a valid token id is provided', t => 
     .expect('Content-Type', /json/)
     .end((err2, res2) => {
 
-      t.ok('token' in res2.body, 'token has been created')
-      const token = res2.body.token;
+      t.ok('user' in res2.body, 'has user')
+      let user = res2.body.user;
+      t.ok('token' in user, 'user has token')
+      const token = user.token;
 
       request(app).get('/api/users/private')
       .set('Accept', 'application/json')

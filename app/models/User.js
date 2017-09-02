@@ -1,35 +1,65 @@
-/**
- * User data Model
- */
+// ------------------------------------------------------------------------- //
+// User Model
+// ------------------------------------------------------------------------- //
 
 const mongoose = require('mongoose');
+const validate = require('mongoose-validator');
+const shortId = require('mongoose-shortid-nodeps');
 const bcrypt = require('bcryptjs');
 const SALT_WORK_FACTOR = 10;
 
 // Create a User schema
 const UserSchema = new mongoose.Schema({
 
+  _id: {
+    type: shortId,
+    len: 16,
+    base: 16,
+    unique: true
+  },
+
+  username: {
+    type: String,
+    required: true,
+    unique: true,
+    validate: validate({
+      validator: 'isLength',
+      arguments: [3, 60],
+      message: 'Username should be between {ARGS[0]} and {ARGS[1]} characters'
+    })
+  },
+
   email: {
     type: String,
     required: true,
-    index: {
-      unique: true
-    }
+    unique: true,
+    validate: validate({
+      validator: 'isEmail',
+      message: 'The e-mail is not valid !'
+    }),
   },
+
   password: {
     type: String,
     required: true,
     select: false
   },
 
-  username: String
+  createdAt: {
+    type: Date,
+    default: Date.now
+  },
 
 }, { strict: true });
 
-UserSchema.path('email').validate(function(email) {
-  let email_regexp = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-  return email_regexp.test(email);
-}, 'The e-mail is not valid !')
+/**
+ * override the toJSON method for the UserModel to always omit the password field
+ */
+UserSchema.methods.toJSON = function() {
+  let obj = this.toObject();
+  delete obj.password
+  return obj;
+}
 
 /**
  * Password Hashing Middleware

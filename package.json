@@ -5,6 +5,7 @@
   "main": "server.js",
   "scripts": {
     "start": "NODE_ENV=dev node server.js",
+    "nodemon": "NODE_ENV=dev nodemon server.js",
     "test": "NODE_ENV=test tape test/tests.js | tap-spec",
     "test-cov": "rm -rf coverage && NODE_ENV=test istanbul cover node_modules/.bin/tape test/tests.js | tap-spec",
     "documentation": "apidoc -i app/routes/api/ -o docs/"
@@ -48,7 +49,9 @@
     "express-vue": "^3.14.3",
     "jsonwebtoken": "^7.3.0",
     "mongoose": "^4.8.4",
+    "mongoose-materialized": "^0.1.9",
     "mongoose-shortid-nodeps": "^0.6.5",
+    "mongoose-validator": "^1.3.2",
     "passport": "^0.3.2",
     "passport-jwt": "^2.2.1",
     "passport-local": "^1.0.0",

@@ -1,25 +1,35 @@
-/**
- * Patcher document data Model
- */
+// ------------------------------------------------------------------------- //
+// Document Model
+// ------------------------------------------------------------------------- //
 
 const mongoose = require('mongoose');
 const shortId = require('mongoose-shortid-nodeps');
 
 const PatcherDocumentSchema = new mongoose.Schema({
+
   session_id: {
     type: shortId,
     len: 16,
     base: 16,
-    index: true
+    unique: true
   },
-  name: { type: String, default: "Untitled" },
-  updated_at: { type: Date, default: Date.now },
+
+  name: {
+    type: String,
+    default: "Untitled"
+  },
+
+  createdAt: {
+    type: Date,
+    default: Date.now
+  },
+
 });
 
 /**
  * Patcher document validator
  */
- PatcherDocumentSchema.pre('save', function (next) {
+ PatcherDocumentSchema.pre('save', function(next) {
 
    let doc = this;
 
