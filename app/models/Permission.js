@@ -32,6 +32,4 @@ let PermissionSchema = new Schema({
 
 });
 
-PermissionSchema.plugin(materialized);
-
 module.exports = mongoose.model('Permission', PermissionSchema);

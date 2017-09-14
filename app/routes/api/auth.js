@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------- //
+// Auth Router
+// ------------------------------------------------------------------------- //
+
 const passport = require('passport')
 const jwt = require('jsonwebtoken');
 const PRIVATE_KEY = require('config').private_key

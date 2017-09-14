@@ -45,19 +45,30 @@ const UserSchema = new mongoose.Schema({
     select: false
   },
 
-  createdAt: {
+  createdTime: {
     type: Date,
     default: Date.now
   },
 
-}, { strict: true });
+  documentRoot: {
+    type: shortId,
+    ref: 'Document'
+  },
+
+  fileRoot: {
+    type: shortId,
+    ref: 'File'
+  },
+
+});
 
 /**
  * override the toJSON method for the UserModel to always omit the password field
  */
 UserSchema.methods.toJSON = function() {
   let obj = this.toObject();
-  delete obj.password
+  delete obj.password;
+  obj.kind = 'Kiwi#User';
   return obj;
 }
 

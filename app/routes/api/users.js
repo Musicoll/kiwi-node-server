@@ -1,7 +1,13 @@
+// ------------------------------------------------------------------------- //
+// User Router
+// ------------------------------------------------------------------------- //
+
 const router = require('express').Router();
-const utils = require('./utils');
+const { sendJsonError } = require('./utils');
 const User = require('../../models/User');
 const auth = require('../../auth')();
+
+const Drive = require('../../controllers/drive');
 
 // GET /users/private (temporary private dummy endpoint)
 router.get('/private', auth.authenticate(), (req, res) => {
@@ -15,11 +21,23 @@ router.get('/', (req, res) => {
 
   // Find all data in the User collection
   User.find()
-    .then(users => { res.json(users) })
-    .catch(err => {
-      console.log(`Error fetching users : ${err}`);
-      utils.sendJsonError(res, "Error fetching users", 404);
+  .lean()
+  .then(users => {
+    let data = {
+      kind: "Kiwi#UserList",
+      items: users
+    }
+
+    data.items.forEach(function(doc) {
+      doc.kind = "Kiwi#User"
     });
+
+    res.json(data)
+  })
+  .catch(err => {
+    console.log(`Error fetching users : ${err}`);
+    sendJsonError(res, "Error fetching users", 404);
+  });
 
 });
 
@@ -33,7 +51,7 @@ router.post('/', function (req, res) {
 
       //duplicate key
       if (err.code === 11000) {
-        utils.sendJsonError(res, 'User already exists', 400);
+        sendJsonError(res, 'User already exists', 400);
         return;
       }
 
@@ -54,13 +72,21 @@ router.post('/', function (req, res) {
         errorMessage = err.message;
       }
 
-      utils.sendJsonError(res, errorMessage, 206);
+      sendJsonError(res, errorMessage, 206);
     }
     else if(!user) {
-      utils.sendJsonError(res, `Creating new user failed`, 500);
+      sendJsonError(res, `Creating new user failed`, 500);
     }
     else {
-      res.json({user: user})
+
+      // create and set drive roots for user
+      Drive.addUser(user)
+      .then(root => {
+        res.json(user.toJSON())
+      })
+      .catch(err => {
+        sendJsonError(res, `Creating new user failed`, 500);
+      })
     }
   });
 });
@@ -72,7 +98,7 @@ router.get('/:id', (req, res) => {
 
   User.findById(user_id, (err, user) => {
     if(err || !user) {
-      utils.sendJsonError(res, `User ${user_id} not found`, 404);
+      sendJsonError(res, `User ${user_id} not found`, 404);
     }
     else {
       res.json(user)
@@ -91,7 +117,7 @@ router.delete('/:id', (req, res, next) => {
 
   User.findByIdAndRemove(user_id, (err, user) => {
     if(err || !user) {
-      utils.sendJsonError(res, `Deleting user ${user_id} failed`, 404);
+      sendJsonError(res, `Deleting user ${user_id} failed`, 404);
     }
     else {
       res.json({"error" : false, "message" : `user ${user_id} deleted`});
@@ -107,7 +133,7 @@ router.put('/:id', (req, res, next) => {
 
   User.findByIdAndUpdate(user_id, req.body, { runValidators: true }, (err, user) => {
     if(err || !user) {
-      utils.sendJsonError(res, "Updating user failed", 404);
+      sendJsonError(res, "Updating user failed", 404);
     }
     else {
       res.json({"error" : false, "message" : `user ${user_id} updated`});

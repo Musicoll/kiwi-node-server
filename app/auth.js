@@ -1,10 +1,13 @@
-// auth.js
+// ------------------------------------------------------------------------- //
+// Authentication and Authorization
+// ------------------------------------------------------------------------- //
 
 const passport = require("passport");
 const LocalStrategy = require('passport-local').Strategy;
 const passportJWT = require("passport-jwt");
 const ExtractJwt = passportJWT.ExtractJwt;
 const JwtStrategy = passportJWT.Strategy;
+const createAbilities = require('./abilities')
 
 const jwtStrategyParams = {
     secretOrKey: require('config').private_key,
@@ -88,7 +91,8 @@ module.exports = function() {
 					}
 
 					req.user = user;
-					next();
+          createAbilities(req, res, next);
+					//next();
 
 				})(req, res, next)
 			}

@@ -1,5 +1,5 @@
 let User = require('../app/models/User');
-let PatcherDocument = require('../app/models/PatcherDocument');
+let Document = require('../app/models/Document');
 
 clearDatabase = () => {
   User.remove({}, err => {
@@ -8,9 +8,9 @@ clearDatabase = () => {
     }
   })
 
-  PatcherDocument.remove({}, err => {
+  Document.remove({}, err => {
     if(err) {
-      console.error('PatcherDocument collection cannot be removed')
+      console.error('Document collection cannot be removed')
     }
   })
 }

@@ -6,6 +6,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const shortId = require('mongoose-shortid-nodeps');
 const materialized = require('mongoose-materialized');
+const { mongoosePlugin } = require('casl')
 
 let FileSchema = new Schema({
 
@@ -34,17 +35,16 @@ let FileSchema = new Schema({
   createdBy: {
     type: shortId,
     ref: 'User'
-  }
-
-/*
-  doc: {
-    type: shortId,
-    ref: 'PatcherDocument'
   },
-*/
+
+  documentRef: {
+    type: shortId,
+    ref: 'Document'
+  },
 
 });
 
+FileSchema.plugin(mongoosePlugin)
 FileSchema.plugin(materialized);
 
 module.exports = mongoose.model('File', FileSchema);

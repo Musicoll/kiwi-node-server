@@ -1,5 +1,10 @@
+// ------------------------------------------------------------------------- //
+// API Router root
+// ------------------------------------------------------------------------- //
+
 const router = require('express').Router();
-const utils = require('./utils');
+const { sendJsonError } = require('./utils');
+const auth = require('../../auth')();
 
 const api_paths = {
   auth_url:       "/auth",
@@ -45,11 +50,11 @@ router.use('/documents', require('./documents'));
 router.use('/users', require('./users'));
 
 // drive endpoints
-router.use('/drive', require('./drive'));
+router.use('/drive', auth.authenticate(), require('./drive'));
 
 // Send an invalid api path error message for all other routes
 router.all('/*', (req, res, next) => {
-  utils.sendJsonError(res, "Invalid api path !", 404);
+  sendJsonError(res, "Invalid api path !", 404);
 });
 
 module.exports = router;

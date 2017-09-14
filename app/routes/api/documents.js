@@ -1,6 +1,10 @@
+// ------------------------------------------------------------------------- //
+// Document Router
+// ------------------------------------------------------------------------- //
+
 const router = require('express').Router();
-const utils = require('./utils');
-const PatcherDocument = require('../../models/PatcherDocument');
+const { sendJsonError } = require('./utils');
+const Document = require('../../models/Document');
 
 /**
  * @apiDefine DocumentNotFoundError
@@ -46,12 +50,96 @@ const PatcherDocument = require('../../models/PatcherDocument');
  */
 router.get('/', (req, res) => {
 
-  // Find all data in the PatcherDocument collection
-  PatcherDocument.find()
-    .then(patchers => { res.json(patchers) })
-    .catch(err => {
-      utils.sendJsonError(res, "Error fetching documents", 404);
+  const userId = '53408DFA5620C9C2';
+
+  var query = {
+    // mongo condition
+    condition: {
+        name: /^Test/,
+        owner: userId
+    },
+    // selected fields
+    fields: {},
+
+    // sorting
+    sort: { name: -1}
+  };
+
+  const documentRootId = '69BD654D8B105F35';
+
+  Document.GetChildren({_id: documentRootId}, query, (err, tree) => {
+    if(err) {
+      console.log("err: " + err);
+      sendJsonError(res, "Error fetching documents", 404);
+      return;
+    }
+
+    let data = {
+      kind: "Kiwi#DocumentList",
+      items: tree
+    }
+
+    data.items.forEach(function(doc) {
+      doc.kind = "Kiwi#Document"
     });
+
+    res.json(data)
+  });
+
+/*
+  Document.findById(documentRootId)
+  .then(root => {
+
+    root.getArrayTree(query, (err, tree) => {
+      if(err) {
+        console.log("err: " + err);
+        sendJsonError(res, "Error fetching documents", 404);
+        return;
+      }
+
+      console.log("tree: " + tree);
+
+      let data = {
+        kind: "Kiwi#DocumentList",
+        items: tree
+      }
+
+      data.items.forEach(function(doc) {
+        doc.kind = "Kiwi#Document"
+      });
+
+      res.json(data)
+    });
+  })
+  .catch(err => {
+    console.log("err: " + err);
+    sendJsonError(res, "Can't find user root", 404);
+  });
+*/
+
+/*
+  // Find all data in the Document collection
+  Document.find({owner: '53408DFA5620C9C2'})
+  .lean()
+  .select('-path')
+  .then(documents => {
+
+    let data = {
+      kind: "Kiwi#DocumentList",
+      items: documents
+    }
+
+    data.items.forEach(function(doc) {
+      doc.kind = "Kiwi#Document"
+    });
+
+    res.json(data)
+  })
+  .catch(err => {
+    console.log("err: " + err);
+    sendJsonError(res, "Error fetching documents", 404);
+  });
+*/
 
 });
 
@@ -82,10 +170,10 @@ router.get('/', (req, res) => {
  */
 router.post('/', (req, res) => {
 
-  PatcherDocument.create(req.body)
+  Document.create(req.body)
     .then(patcher => { res.json(patcher); })
     .catch(err => {
-      utils.sendJsonError(res, "Error creating document", 500);
+      sendJsonError(res, "Error creating document", 500);
     });
 
 });
@@ -120,11 +208,16 @@ router.post('/', (req, res) => {
  */
 router.get('/:id', (req, res) => {
 
-  PatcherDocument.findById(req.params.id)
-    .then(patcher => { res.json(patcher) })
-    .catch(err => {
-      utils.sendJsonError(res, "DocumentNotFound", 404);
-    });
+  const doc_id = req.params.id;
+
+  Document.findById(doc_id, (err, doc) => {
+    if(err || !doc) {
+      sendJsonError(res, `Document ${doc_id} not found`, 404);
+    }
+    else {
+      res.json(doc)
+    }
+  });
 
 });
 
@@ -134,7 +227,7 @@ router.get('/:id', (req, res) => {
  * @apiGroup Documents
  * @apiVersion 0.0.1
  *
- * @apiParam {String} id The Document unique Object Id.
+ * @apiParam {String} id The Document Id.
  *
  * @apiHeader {String} name The new name of the Document.
  *
@@ -153,13 +246,34 @@ router.get('/:id', (req, res) => {
  */
 router.put('/:id', (req, res, next) => {
 
-  PatcherDocument.findByIdAndUpdate(req.params.id, req.body)
-    .then(patcher => {
-      res.json({"error" : false, "message" : "document " + req.params.id + " updated"});
-    })
-    .catch(err => {
-      utils.sendJsonError(res, "DocumentNotFound", 404);
-    });
+  const doc_id = req.params.id;
+
+  Document.findById(doc_id, (err, doc) => {
+    if(err || !doc) {
+      sendJsonError(res, `Document ${doc_id} not found`, 404);
+    }
+    else {
+
+      let newdoc = req.body;
+
+      if(newdoc.name) {
+        doc.name = newdoc.name
+      }
+
+      if(newdoc.description) {
+        doc.description = newdoc.description
+      }
+
+      doc.save()
+      .then((doc2) => {
+        res.json({"error" : false, "message" : "document " + doc_id + " deleted"});
+      })
+      .catch(err => {
+        sendJsonError(res, "DocumentUpdateError", 500);
+      });
+
+    }
+  });
 
 });
 
@@ -190,13 +304,22 @@ router.delete('/:id', (req, res, next) => {
   // Todo: return an error when deleting a document already deleted
   // for now this returns a success message :(
 
-  PatcherDocument.findByIdAndRemove(req.params.id)
-    .then(patcher => {
-      res.json({"error" : false, "message" : "document " + req.params.id + " deleted"});
-    })
-    .catch(err => {
-      utils.sendJsonError(res, "DocumentNotFound", 404);
-    });
+  const doc_id = req.params.id;
+
+  Document.findById(doc_id, (err, doc) => {
+    if(err || !doc) {
+      sendJsonError(res, `Document ${doc_id} not found`, 404);
+    }
+    else {
+      doc.remove()
+      .then((d) => {
+        res.json({"error" : false, "message" : "document " + doc_id + " deleted"});
+      })
+      .catch(err => {
+        sendJsonError(res, "DocumentRemoveError", 500);
+      });
+    }
+  });
 
 });
 

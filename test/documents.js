@@ -27,9 +27,14 @@ test('POST /api/documents', t => {
 
   helper.clearDatabase();
 
+  const documentOptions = {
+    name: 'toto.kiwi',
+    mimeType: 'application/cicm.kiwiapp.patcher'
+  }
+
   request(app).post('/api/documents')
   .accept('application/json')
-  .send({name: 'toto.kiwi'})
+  .send(documentOptions)
   .expect(200)
   .type('application/json')
   .end((err, res) => {
@@ -37,7 +42,6 @@ test('POST /api/documents', t => {
     t.ok('name' in doc, "document has a 'name' property");
     t.ok(doc.name == "toto.kiwi", "document name has been set");
     t.ok('_id' in doc, "document has an '_id' property");
-    t.ok('session_id' in doc, "document has a 'session_id' property");
     t.end(err);
   });
 
@@ -47,9 +51,14 @@ test('POST /api/documents with an empty name param should set the document title
 
   helper.clearDatabase();
 
+  const documentOptions = {
+    name: '',
+    mimeType: 'application/cicm.kiwiapp.patcher'
+  }
+
   request(app).post('/api/documents')
   .accept('application/json')
-  .send({name: ''})
+  .send(documentOptions)
   .expect(200)
   .type('application/json')
   .end((err, res) => {
@@ -80,9 +89,14 @@ test('GET /api/documents/:id', t => {
 
   helper.clearDatabase();
 
+  const documentOptions = {
+    name: '',
+    mimeType: 'application/cicm.kiwiapp.patcher'
+  }
+
   request(app).post('/api/documents')
   .accept('application/json')
-  .send({name: 'toto.kiwi'})
+  .send(documentOptions)
   .expect(200)
   .type('application/json')
   .end((err, res) => {
@@ -121,9 +135,14 @@ test('DELETE /api/documents/:id', t => {
 
   helper.clearDatabase();
 
+  const documentOptions = {
+    name: '',
+    mimeType: 'application/cicm.kiwiapp.patcher'
+  }
+
   request(app).post('/api/documents')
   .accept('application/json')
-  .send()
+  .send(documentOptions)
   .expect(200)
   .type('application/json')
   .end((err, res) => {
@@ -148,10 +167,15 @@ test('update a document with a bad id should fail', t => {
 
   helper.clearDatabase();
 
+  const documentOptions = {
+    name: 'toto.kiwi',
+    mimeType: 'application/cicm.kiwiapp.patcher'
+  }
+
   const bad_id = 'zozo';
   request(app).put('/api/documents/' + bad_id)
   .accept('application/json')
-  .send({name: 'toto.kiwi'})
+  .send(documentOptions)
   .expect(404)
   .type('application/json')
   .end((error, response) => {
@@ -165,12 +189,18 @@ test('PUT /api/documents/:id', t => {
 
   helper.clearDatabase();
 
-  const old_name = 'toto.kiwi';
-  const new_name = 'tata.kiwi';
+  const documentOptions = {
+    name: 'toto.kiwi',
+    mimeType: 'application/cicm.kiwiapp.patcher'
+  }
+
+  const newDocumentOptions = {
+    name: 'tata.kiwi'
+  }
 
   request(app).post('/api/documents')
   .accept('application/json')
-  .send({name: old_name})
+  .send(documentOptions)
   .expect(200)
   .type('application/json')
   .end((err, res) => {
@@ -181,7 +211,7 @@ test('PUT /api/documents/:id', t => {
 
     request(app).put('/api/documents/' + doc._id)
     .accept('application/json')
-    .send({name: new_name})
+    .send(newDocumentOptions)
     .expect(200)
     .type('application/json')
     .end((error, response) => {
@@ -191,7 +221,7 @@ test('PUT /api/documents/:id', t => {
       .expect(200)
       .type('application/json')
       .end((error2, response2) => {
-        t.same(response2.body.name, new_name, `document name has been successfully updated`)
+        t.same(response2.body.name, newDocumentOptions.name, `document name has been successfully updated`)
 
         helper.clearDatabase();
         t.end(error2);

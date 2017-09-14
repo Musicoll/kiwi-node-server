@@ -3,46 +3,91 @@
 // ------------------------------------------------------------------------- //
 
 const router = require('express').Router();
-const utils = require('./utils');
-const FileModel = require('../../models/File');
+const { sendJsonError } = require('./utils');
 const Drive = require('../../controllers/drive');
 const auth = require('../../auth')();
 
-router.get('/', (req, res) => {
+/**
+ * @api {get} /files Lists the user's files
+ * @apiName ListUsersFiles
+ * @apiGroup File
+ * @apiVersion 0.1.0
+ */
+router.get('/files', (req, res) => {
 
-  // Find all Files
-  FileModel.GetFullArrayTree()
+  let drive = new Drive(req.user);
+
+  drive.listFiles({})
   .then(files => {
-    res.json(files)
-  },
-  err => {
-    utils.sendJsonError(res, "Error fetching files", 404);
-  })
-
-});
-
-router.get('/folder/:id', (req, res) => {
-
-  FileModel.findById(req.params.id)
-  .populate('createdBy')
-  .then(folder => {
-    // returns the folder's subtree
-    folder.getTree(function(err, files) {
-        res.json(files)
-    });
+    res.json(files);
   })
   .catch(err => {
-    utils.sendJsonError(res, "FolderNotFound", 404);
+    sendJsonError(res, err.message, err.status);
   });
 
 });
+
+/**
+ * @api {get} /files/:fileId Gets a file's metadata by ID.
+ * @apiName GetFileData
+ * @apiGroup File
+ * @apiVersion 0.1.0
+ */
+router.get('/files/:fileId', (req, res) => {
+
+  let drive = new Drive(req.user);
+
+  drive.listFiles(req.params.fileId)
+  .then(files => {
+    res.json(files);
+  })
+  .catch(err => {
+    sendJsonError(res, err.message, err.status);
+  });
+
+});
+
+/**
+ * @api {post} /files Insert a new File.
+ * @apiName InsertFile
+ * @apiGroup File
+ * @apiVersion 0.1.0
+ */
+ router.post('/files', (req, res) => {
+   let drive = new Drive(req.user);
+
+   let options = {
+     isFolder: req.body.isFolder || false
+   };
+
+   if(req.body.name) {
+     options.name = req.body.name;
+   }
+
+   drive.add(options)
+   .then(doc => {
+     res.json(doc);
+   })
+   .catch(err => {
+     sendJsonError(res, err.message, err.status);
+   });
+
+ });
+
+ /**
+  * @api {post} /files/:id Insert a new File.
+  * @apiName InsertFile
+  * @apiGroup File
+  * @apiVersion 0.1.0
+  */
 
 // id du dossier où placer le nouveau dossier ou fichier
-router.post('/:id', auth.authenticate(), (req, res) => {
+router.post('/files/:fileId', (req, res) => {
 
   let drive = new Drive(req.user);
 
-  drive.add(req.params.id, {
+  drive.add({
+    parent: req.params.fileId,
     name: req.body.name || '',
     isFolder: req.body.isFolder || false,
   })
@@ -50,39 +95,22 @@ router.post('/:id', auth.authenticate(), (req, res) => {
     res.json(file);
   })
   .catch(err => {
-    utils.sendJsonError(res, err.message, err.status);
-  });
-
-});
-
-router.post('/', auth.authenticate(), (req, res) => {
-
-  let drive = new Drive(req.user);
-
-  drive.add(null, {
-    name: req.body.name || '',
-    isFolder: req.body.isFolder || false,
-  })
-  .then(file => {
-    res.json(file);
-  })
-  .catch(err => {
-    utils.sendJsonError(res, err.message, err.status);
+    sendJsonError(res, err.message, err.status);
   });
 
 });
 
 // id du dossier ou fichier à supprimer.
-router.delete('/:id', auth.authenticate(), (req, res) => {
+router.delete('/files/:fileId', (req, res) => {
 
   let drive = new Drive(req.user);
 
-  drive.remove(req.params.id)
+  drive.remove(req.params.fileId)
   .then(message => {
     res.json(message);
   })
   .catch(err => {
-    utils.sendJsonError(res, err.message, err.status);
+    sendJsonError(res, err.message, err.status);
   });
 
 });
