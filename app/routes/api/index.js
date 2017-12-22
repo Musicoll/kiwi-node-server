@@ -6,7 +6,8 @@ const api_paths = {
   users_url:      "/users",
   user_url :      "/users/:id",
   documents_url:  "/documents",
-  document_url:   "/documents/:id"
+  document_url:   "/documents/:id",
+  releases_url:   "/releases"
 }
 
 /**
@@ -28,7 +29,8 @@ const api_paths = {
  *        "users_url":      "/users",
  *        "user_url" :      "/users/:id",
  *        "documents_url":  "/documents",
- *        "document_url":   "/documents/:id"
+ *        "document_url":   "/documents/:id",
+ *        "releases_url":   "/releases"
  *     }
  */
 router.get('/', (req, res, next) => {
@@ -46,6 +48,9 @@ router.use('/users', require('./users'));
 
 // drive endpoints
 router.use('/drive', require('./drive'));
+
+// releases endpoint
+router.use('/releases', require('./releases'));
 
 // Send an invalid api path error message for all other routes
 router.all('/*', (req, res, next) => {
