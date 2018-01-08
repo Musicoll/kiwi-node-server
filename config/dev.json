@@ -1,0 +1,15 @@
+{
+	"port": 8080,
+	"db_url": "mongodb://localhost/KiwiAPI-dev",
+	"private_key": "kiwisupersecretprivatekey007-dev",
+	"mail_service":
+	{
+		"service": "Gmail",
+		"auth": {
+				"user": "youremailaddress@email.com",
+				"pass": "emailpassword"
+		}
+	},
+	"session_port": 9090,
+	"backend_directory": "server_backend"
+}
