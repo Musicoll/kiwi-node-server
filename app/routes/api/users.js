@@ -7,6 +7,7 @@ const config = require('config');
 const mail_service_config = require('config').mail_service;
 const nodemailer = require('nodemailer');
 const crypto = require("crypto")
+const jwt = require('jsonwebtoken');
 
 // GET /users/private (temporary private dummy endpoint)
 router.get('/private', auth.authenticate(), (req, res) => {
@@ -28,7 +29,7 @@ router.get('/', (req, res) => {
 
 });
 
-function sendValidationMail(usermail, link, res) {
+function sendEmail(options, next) {
 
     let transporter = nodemailer.createTransport({
         service: mail_service_config.service,
@@ -37,19 +38,13 @@ function sendValidationMail(usermail, link, res) {
 
     let mail_options = {
       from: mail_service_config.auth.user,
-      to: usermail,
-      subject: 'Kiwi account activation.',
-      html: "Hello,<br> Please Click on following link to activate your account.<br><a href="+link+">Confirm account</a>"
+      to: options.to,
+      subject: options.subject,
+      html: options.html
     };
 
     transporter.sendMail(mail_options, function(error, info) {
-
-        if(error) {
-            utils.sendJsonError(res, "Sending confiration mail failed", 500);
-        }
-        else {
-            res.json({message: "Activation mail sent"});
-        }
+        next(error, info);
     });
 }
 
@@ -102,13 +97,102 @@ router.post('/', function (req, res) {
 
                             let link= "http://"+req.hostname+":"+port+"/verify?tempuserid=" + tempuserid + "&token=" + token;
 
-                            sendValidationMail(tempuser.email, link, res);
+                            let mail_options = {
+                              to: tempuser.email,
+                              subject: 'Kiwi account activation.',
+                              html: "Hello,<br> Please Click on following link to activate your account.<br><a href="+link+">Confirm account</a>"
+                            };
+
+                            sendEmail(mail_options, function(error, info) {
+                                if(error) {
+                                    utils.sendJsonError(res, "Sending confiration mail failed", 500);
+                                }
+                                else {
+                                    res.json({message: "Activation mail sent"});
+                                }
+                            });
                         }
                     });
                 }
             });
         }
     });
+});
+
+// POST /users/passwordtoken
+router.post('/passtoken', (req, res) => {
+    if (req.body.email){
+        User.findOne({email: req.body.email}, function(err, user) {
+            if (!err && user){
+                let payload = {userid: user._id};
+                let token = jwt.sign(payload, config.private_key, {
+                    expiresIn: '24h'
+                });
+
+                let mail_options = {
+                  to: user.email,
+                  subject: 'Kiwi reset password.',
+                  html: "Hello,<br> Open Kiwi and use this token to reset password<br>token: " + token
+                };
+
+                sendEmail(mail_options, function(error, info) {
+                    if(error) {
+                        utils.sendJsonError(res, "Sending reset password mail failed", 500);
+                    }
+                    else {
+                        res.json({message: "Reset password sent"});
+                    }
+                })
+            }
+            else {
+                utils.sendJsonError(res, `${req.body.email} not found`, 404);
+            }
+        })
+    }
+    else{
+        utils.sendJsonError(res, 'email field required', 400);
+    }
+})
+
+// POST /users/passwordreset
+router.post('/passreset', (req, res) => {
+
+    if (req.body.token && req.body.newpass){
+
+        jwt.verify(req.body.token, config.private_key, function(err, decoded) {
+
+            if (!err){
+
+                const user_id = decoded.userid;
+
+                const query = {
+                    password: req.body.newpass
+                }
+
+
+                User.findByIdAndUpdate(user_id, query, { runValidators: true }, (err, user) => {
+
+                  if(err || !user) {
+                    utils.sendJsonError(res, "Updating passwork", 404);
+                  }
+                  else {
+                      res.json({message: "Password updated"});
+                  }
+                });
+            }
+            else {
+                if (err.name == 'TokenExpiredError'){
+                    utils.sendJsonError(res, 'Reset token expired', 410);
+                }
+            }
+        });
+    }
+    else if(!req.body.token) {
+        utils.sendJsonError(res, 'reset token is required', 400);
+    }
+    else if (!req.body.newpass) {
+        utils.sendJsonError(res, 'newpass is required', 400);
+    }
 });
 
 // GET /users/:id
