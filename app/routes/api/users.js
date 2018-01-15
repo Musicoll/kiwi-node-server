@@ -1,7 +1,12 @@
 const router = require('express').Router();
 const utils = require('./utils');
-const User = require('../../models/User');
+const User = require('../../models/User').User;
+const TempUser = require('../../models/User').TempUser;
 const auth = require('../../auth')();
+const config = require('config');
+const mail_service_config = require('config').mail_service;
+const nodemailer = require('nodemailer');
+const crypto = require("crypto")
 
 // GET /users/private (temporary private dummy endpoint)
 router.get('/private', auth.authenticate(), (req, res) => {
@@ -23,46 +28,87 @@ router.get('/', (req, res) => {
 
 });
 
+function sendValidationMail(usermail, link, res) {
+
+    let transporter = nodemailer.createTransport({
+        service: mail_service_config.service,
+        auth: mail_service_config.auth
+    });
+
+    let mail_options = {
+      from: mail_service_config.auth.user,
+      to: usermail,
+      subject: 'Kiwi account activation.',
+      html: "Hello,<br> Please Click on following link to activate your account.<br><a href="+link+">Confirm account</a>"
+    };
+
+    transporter.sendMail(mail_options, function(error, info) {
+
+        if(error) {
+            utils.sendJsonError(res, "Sending confiration mail failed", 500);
+        }
+        else {
+            res.json({message: "Activation mail sent"});
+        }
+    });
+}
+
 // POST /users
 router.post('/', function (req, res) {
 
-  let newuser = new User(req.body);
-
-  newuser.save((err, user) => {
-    if(err) {
-
-      //duplicate key
-      if (err.code === 11000) {
-        utils.sendJsonError(res, 'User already exists', 400);
+    if (!req.body.email || !req.body.username || !req.body.password) {
+        utils.sendJsonError(res, 'Missing signup info', 400);
         return;
-      }
-
-      // Get the user's fields
-      const fields = User.schema.paths;
-      let errorMessage = "";
-
-      for (let field in fields){
-          if (err.errors[field]) {
-            errorMessage += `- ${err.errors[field].message}`;
-            errorMessage += "\n";
-
-            console.log(`"${field}" error: ${err.errors[field].message}`);
-          }
-      }
-
-      if(!errorMessage){
-        errorMessage = err.message;
-      }
-
-      utils.sendJsonError(res, errorMessage, 206);
     }
-    else if(!user) {
-      utils.sendJsonError(res, `Creating new user failed`, 500);
-    }
-    else {
-      res.json({user: user})
-    }
-  });
+
+    User.findOne({$or:[{email: req.body.email}, {username: req.body.username}]}, function(err, user) {
+        if (user) {
+            utils.sendJsonError(res, 'User already exists', 400);
+        }
+        else {
+
+            TempUser.remove( {$or:[{email: req.body.email}, {username: req.body.username}]}, function(err) {
+
+                if (err){
+                    console.log(err)
+                }
+                else {
+
+                    let newTempUser = new TempUser({username: req.body.username,
+                                                    email: req.body.email,
+                                                    password: req.body.password,
+                                                    activationToken: crypto.randomBytes(32).toString('hex')
+                    });
+
+                    newTempUser.save((err, tempuser) => {
+                        if (err || !tempuser) {
+
+                            if (err.errors){
+                                if (err.errors.email){
+                                    utils.sendJsonError(res, 'Invalid email adress', 400)
+                                }
+                                else if(err.errors.username) {
+                                    utils.sendJsonError(res, 'Invalid username', 400)
+                                }
+                            }
+                            else {
+                                utils.sendJsonError(res, 'User creation failed', 500);
+                            }
+                        }
+                        else {
+                            let token = tempuser.activationToken;
+                            let tempuserid = tempuser._id;
+                            let port = config.port;
+
+                            let link= "http://"+req.hostname+":"+port+"/verify?tempuserid=" + tempuserid + "&token=" + token;
+
+                            sendValidationMail(tempuser.email, link, res);
+                        }
+                    });
+                }
+            });
+        }
+    });
 });
 
 // GET /users/:id

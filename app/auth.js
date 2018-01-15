@@ -13,7 +13,7 @@ const jwtStrategyParams = {
 		]),
 };
 
-const User = require('./models/User');
+const User = require('./models/User').User;
 
 passport.use(new LocalStrategy({usernameField: 'username' }, function(username, password, done) {
 
