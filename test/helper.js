@@ -1,4 +1,4 @@
-let User = require('../app/models/User');
+let User = require('../app/models/User').User;
 let PatcherDocument = require('../app/models/PatcherDocument');
 
 clearDatabase = () => {

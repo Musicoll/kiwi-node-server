@@ -1,4 +1,6 @@
 const router = require('express').Router();
+const TempUser = require('../../models/User').TempUser
+const User = require('../../models/User').User
 
 class GlobalScope {
   constructor(req) {
@@ -14,6 +16,47 @@ class GlobalScope {
     }
   }
 }
+
+// GET the user validation page
+router.get('/verify', function(req, res){
+
+    const tempuserid = req.query.tempuserid;
+    const activationToken = req.query.token;
+
+    if (!tempuserid || !activationToken) {
+        res.status(400).render('simpleMessage', {data: {mess: "Id or Token not specified"}});
+        return
+    }
+
+    TempUser.findOne({_id: req.query.tempuserid}, function (err, tempuser) {
+
+        if (!tempuser || activationToken != tempuser.activationToken) {
+            res.status(410).render('simpleMessage', {data: {mess: "Activation expired. Please register again."}})
+        }
+        else if(err) {
+            res.status(500).render('simpleMessage', {data: {mess: "Activation failed"}});
+        }
+        else {
+
+            let newUser = new User({username: tempuser.username,
+                                    email: tempuser.email,
+                                    password: tempuser.password
+            });
+
+            newUser.save((err, user) => {
+                if (err || !user) {
+                    res.status(500).render('simpleMessage', {data: {mess: "Activation failed."}});
+                }
+                else {
+                    res.render('simpleMessage', {data:{mess: "Your account has been confirmed."}})
+                }
+            });
+
+            TempUser.remove({_id: tempuser._id}, function(err) {
+            });
+        }
+    });
+})
 
 // GET the home page
 router.get('/', function(req, res) {

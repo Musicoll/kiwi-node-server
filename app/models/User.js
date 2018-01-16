@@ -47,8 +47,7 @@ const UserSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now
-  },
-
+  }
 }, { strict: true });
 
 /**
@@ -56,7 +55,7 @@ const UserSchema = new mongoose.Schema({
  */
 UserSchema.methods.toJSON = function() {
   let obj = this.toObject();
-  delete obj.password
+  delete obj.password;
   return obj;
 }
 
@@ -127,5 +126,46 @@ UserSchema.methods.comparePassword = function (pwd) {
 
 };
 
+// Create a User schema
+const TempUserSchema = new mongoose.Schema({
+  username: {
+    type: String,
+    required: true,
+    unique: true,
+    validate: validate({
+      validator: 'isLength',
+      arguments: [3, 60],
+      message: 'Username should be between {ARGS[0]} and {ARGS[1]} characters'
+    })
+  },
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+    validate: validate({
+      validator: 'isEmail',
+      message: 'The e-mail is not valid !'
+    }),
+  },
+  password: {
+    type: String,
+    required: true
+  },
+  expireAt: {
+      type: Date,
+      default: +new Date() + 24 * 3600 * 1000,
+      required: true
+  },
+  activationToken: {
+      type: String,
+      required: true
+  }
+});
+
+TempUserSchema.index({"expireAt": 1}, {expireAfterSeconds: 0})
+
 // To avoid mongoose overwriteModelError
-module.exports = (mongoose.models.User) ? mongoose.model('User') : mongoose.model('User', UserSchema);
+module.exports = {
+    User: (mongoose.models.User) ? mongoose.model('User') : mongoose.model('User', UserSchema),
+    TempUser: mongoose.model('TempUser', TempUserSchema)
+}

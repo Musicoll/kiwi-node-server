@@ -6,16 +6,31 @@ You can add your own configuration file to this directory as explained [here](ht
 Ex:
 
 ```js
-module.exports = {
+{
+	// listening port
+	"port": 8080,
 
-	// server listening port config
-	port: process.env.PORT || 8080,
+	// database
+	"db_url": "mongodb://localhost/KiwiAPI-dev",
 
-	// mongoDB connection url
-	db_url: 'mongodb://localhost/YourDataBase',
+	// private key to encode user token
+	"private_key": "kiwisupersecretprivatekey007-dev",
 
-	// JWT private key
-	private_key: 'yoursupersecretprivatekey',
+	// mail sender info
+	"mail_service":
+	{
+		"service": "Gmail",
+		"auth": {
+				"user": "youremailaddress@email.com",
+				"pass": "emailpassword"
+		}
+	},
 
-};
+	// flip binary port
+	"session_port": 9090,
+
+	// session server backend directory
+	"backend_directory": "server_backend"
+}
+
 ```

@@ -2,7 +2,7 @@ const passport = require('passport')
 const jwt = require('jsonwebtoken');
 const PRIVATE_KEY = require('config').private_key
 
-const User = require('../../models/User');
+const User = require('../../models/User').User;
 
 /**
  * POST /api/login endpoint route
