@@ -166,13 +166,21 @@ router.get('/:id', auth.authenticate(), (req, res) => {
  */
 router.put('/:id', auth.authenticate(), (req, res, next) => {
 
+    if (req.body.trashed && req.body.trashed == true){
+        req.body.trashedBy = req.user._id;
+        req.body.trashedDate = Date.now();
+    }
+
   PatcherDocument.findByIdAndUpdate(req.params.id, req.body)
     .then(patcher => {
       res.json({"error" : false, "message" : "document " + req.params.id + " updated"});
     })
     .catch(err => {
-        if (err.code == 'WrongUpdate') {
-            utils.sendJsonError(res, 'Updating document failed.', 400)
+        if (err.code == 'CreatedBy') {
+            utils.sendJsonError(res, 'createdBy not allowed update', 400);
+        }
+        else if(err.code == 'Trash'){
+            utils.sendJsonError(res, 'updating trash failed', 500);
         }
         else {
             utils.sendJsonError(res, "DocumentNotFound", 404);

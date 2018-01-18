@@ -153,66 +153,6 @@ test('GET /api/documents/:id', t => {
 
 });
 
-// test('delete a document with a bad id should fail', t => {
-//
-//   helper.clearDatabase();
-//
-//   const bad_id = 'zozo';
-//   request(app).delete('/api/documents/' + bad_id)
-//   .accept('application/json')
-//   .expect(404)
-//   .type('application/json')
-//   .end((error, response) => {
-//     t.ok(response.body.error === true, `document with id '${bad_id}' can not be deleted`)
-//     t.end(error);
-//   });
-//
-// });
-
-// test('DELETE /api/documents/:id', t => {
-//
-//   helper.clearDatabase();
-//
-//   request(app).post('/api/documents')
-//   .accept('application/json')
-//   .send()
-//   .expect(200)
-//   .type('application/json')
-//   .end((err, res) => {
-//
-//     let doc = res.body;
-//
-//     t.error(err, `document ${doc._id} created`)
-//
-//     request(app).delete('/api/documents/' + doc._id)
-//     .accept('application/json')
-//     .expect(200)
-//     .type('application/json')
-//     .end((error, response) => {
-//       t.ok(response.body.error === false, `document ${doc._id} has been successfully deleted`)
-//       t.end(error);
-//     });
-//   });
-//
-// });
-//
-// test('update a document with a bad id should fail', t => {
-//
-//   helper.clearDatabase();
-//
-//   const bad_id = 'zozo';
-//   request(app).put('/api/documents/' + bad_id)
-//   .accept('application/json')
-//   .send({name: 'toto.kiwi'})
-//   .expect(404)
-//   .type('application/json')
-//   .end((error, response) => {
-//     t.ok(response.body.error === true, `document with id '${bad_id}' can not be updated`)
-//     t.end(error);
-//   });
-//
-// });
-
 test('PUT /api/documents/:id', t => {
 
   helper.clearDatabase();
@@ -274,6 +214,72 @@ test('PUT /api/documents/:id', t => {
               });
             });
 
+          });
+
+      })
+  })
+
+});
+
+test('PUT /api/documents/:id trash document', t => {
+
+  helper.clearDatabase();
+
+  helper.createUser(helper.userTest, function(newuser){
+      helper.loginUser(helper.userTest, function(loginuser){
+
+          request(app).post('/api/documents')
+          .accept('application/json')
+          .set('Authorization', 'JWT ' + loginuser.token)
+          .send({name: 'new-doc'})
+          .expect(200)
+          .type('application/json')
+          .end((err, res) => {
+
+              let doc = res.body;
+
+              request(app).put('/api/documents/'+ doc._id)
+              .accept('application/json')
+              .set('Authorization', 'JWT ' + loginuser.token)
+              .send({trashed: true})
+              .expect(200)
+              .type('application/json')
+              .end((err, res) => {
+                  t.error(err, "trashing document should succeed");
+
+                  request(app).get('/api/documents/' + doc._id)
+                  .accept('application/json')
+                  .set('Authorization', 'JWT ' + loginuser.token)
+                  .expect(200)
+                  .type('application/json')
+                  .end((err, res) => {
+                      t.error(err, "getting document after trashing");
+                      t.ok('trashedBy' in res.body, "trashedBy field exists");
+                      t.ok('trashedDate' in res.body, "trashedDate field exists");
+                      t.ok(res.body.trashed == true, "trashed field should be true");
+
+                      request(app).put('/api/documents/' + doc._id)
+                      .accept('application/json')
+                      .set('Authorization', 'JWT ' + loginuser.token)
+                      .send({trashed: false})
+                      .expect(200)
+                      .type('application/json')
+                      .end((err, res) => {
+                          t.error(err);
+                          request(app).get('/api/documents/' + doc._id)
+                          .accept('application/json')
+                          .set('Authorization', 'JWT ' + loginuser.token)
+                          .expect(200)
+                          .type('application/json')
+                          .end((err, res) => {
+                              t.notOk("trashedBy" in res.body, "untrash removes trashedBy field");
+                              t.notOk("trashedDate" in res.body, "untrash removes trashedDate field");
+                              t.ok(res.body.trashed == false, "trashed false");
+                              t.end();
+                          })
+                      })
+                  })
+              })
           });
 
       })

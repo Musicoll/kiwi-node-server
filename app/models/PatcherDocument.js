@@ -28,6 +28,22 @@ const PatcherDocumentSchema = new mongoose.Schema({
       type: shortId,
       ref: 'User',
       required: true
+  },
+
+  trashed: {
+      type: Boolean,
+      required: true,
+      default: false
+  },
+
+  trashedDate: {
+      type: Date,
+      required: false
+  },
+
+  trashedBy: {
+      type: shortId,
+      ref: 'User',
   }
 
 });
@@ -61,13 +77,26 @@ function preUpdate(next) {
   }
 
   // reset name to 'Untitled' if is unset or blank.
-  if( !('name' in update) || !update.name) {
+  if( 'name' in update && update.name == "") {
      update.name = 'Untitled';
+  }
+
+  if ('trashed' in update){
+      if (update.trashed == true){
+          if (!update.trashedBy || !update.trashedDate){
+              let err = new Error('Document can\'t update trashed field')
+              err.code = 'Trash'
+              next(err)
+          }
+      }
+      else{
+          query.getUpdate().$unset = {trashedBy: "", trashedDate: ""};
+      }
   }
 
   if ( 'createdBy' in update) {
       let err = new Error('Document Can\'t update createdBy field')
-      err.code = 'WrongUpdate'
+      err.code = 'CreatedBy'
       next(err);
   }
 
