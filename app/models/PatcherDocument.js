@@ -44,6 +44,18 @@ const PatcherDocumentSchema = new mongoose.Schema({
   trashedBy: {
       type: shortId,
       ref: 'User',
+  },
+
+  lastOpenedAt: {
+      type: Date,
+      default: Date.now,
+      required: true
+  },
+
+  lastOpenedBy: {
+      type: shortId,
+      ref: 'User',
+      required: true
   }
 
 });

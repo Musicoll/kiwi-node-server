@@ -2,6 +2,7 @@ const router = require('express').Router();
 const utils = require('./utils');
 const PatcherDocument = require('../../models/PatcherDocument');
 const auth = require('../../auth')();
+const config = require('config');
 
 /**
  * @apiDefine DocumentNotFoundError
@@ -50,6 +51,7 @@ router.get('/', auth.authenticate(), (req, res) => {
   // Find all data in the PatcherDocument collection
   PatcherDocument.find()
     .populate('createdBy', 'email username')
+    .populate('lastOpenedBy', 'email username')
     .then(patchers => { res.json(patchers) })
     .catch(err => {
       utils.sendJsonError(res, "Error fetching documents", 404);
@@ -86,18 +88,21 @@ router.post('/', auth.authenticate(), (req, res) => {
 
     let request = {
         name: req.body.name,
-        createdBy: req.user._id
+        createdBy: req.user._id,
+        lastOpenedBy: req.user._id
     }
 
     PatcherDocument.create(request)
       .then(patcher => {
-          patcher.populate('createdBy', 'username email', function(err){
-              res.json(patcher);
+          patcher.populate('createdBy', 'username email', function(err) {
+              patcher.populate('lastOpenedBy', 'username email', function(err) {
+                  res.json(patcher);
+              })
           })
       })
       .catch(err => {
           console.log(err)
-        utils.sendJsonError(res, "Error creating document", 500);
+          utils.sendJsonError(res, "Error creating document", 500);
       });
 
 });
@@ -134,11 +139,46 @@ router.get('/:id', auth.authenticate(), (req, res) => {
 
   PatcherDocument.findById(req.params.id)
     .populate('createdBy', 'username email')
+    .populate('lastOpenedBy', 'username email')
     .then(patcher => { res.json(patcher) })
     .catch(err => {
       utils.sendJsonError(res, "DocumentNotFound", 404);
     });
 
+});
+
+/**
+ * @api {get} /documents/:id/open Request a toke for opening file.
+ * @apiName OpenDocument
+ * @apiGroup Documents
+ * @apiVersion 0.0.1
+ *
+ * @apiParam {ObjectId} id Document unique Object Id.
+ *
+ * @apiSuccess {String} token access token that flip server to open document.
+ *
+ * @apiSuccessExample Success-Response:
+ * HTTP/1.1 200 OK
+ *   {
+ *      "_id": "58b1ab53b65b10af1123409e",
+ *    }
+ *
+ *
+ * @apiUse DocumentNotFoundError
+ *
+ */
+router.get('/:id/opentoken', auth.authenticate(), (req, res) => {
+
+    let query = {lastOpenedAt: Date.now(), lastOpenedBy: req.user._id}
+
+    PatcherDocument.findByIdAndUpdate(req.params.id, query)
+      .then(patcher => {
+        res.json({"error" : false,
+                  "token" : config.open_token});
+      })
+      .catch(err => {
+          utils.sendJsonError(res, "DocumentNotFound", 404);
+      })
 });
 
 /**

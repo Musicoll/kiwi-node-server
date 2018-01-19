@@ -10,6 +10,12 @@ const userTest = {
   password: 'password'
 }
 
+const userTest2 = {
+    username: 'john deer',
+    email: 'johndeer@gmail.com',
+    password: 'password'
+}
+
 clearDatabase = () => {
   User.remove({}, err => {
     if(err) {
@@ -70,4 +76,5 @@ module.exports = {
   createUser: createUser,
   loginUser: loginUser,
   userTest: userTest,
+  userTest2: userTest2
 };

@@ -63,7 +63,9 @@ test('POST /api/documents', t => {
             t.ok(doc.name == "toto.kiwi", "document name has been set");
             t.ok('_id' in doc, "document has an '_id' property");
             t.ok('session_id' in doc, "document has a 'session_id' property");
-            t.ok('createdBy' in doc, "document has a createdBy property")
+            t.ok('createdBy' in doc, "document has a createdBy property");
+            t.ok('lastOpenedBy' in doc, "document has a lastOpenedBy property");
+            t.ok('lastOpenedAt' in doc, "document has a lastOpenedAt property");
             t.end(err);
           });
       })
@@ -147,6 +149,50 @@ test('GET /api/documents/:id', t => {
                 t.same(doc, response.body, 'document can be retrieved by id');
                 t.end();
             });
+          });
+      })
+  })
+
+});
+
+test('GET /api/documents/:id/opentoken', t => {
+
+  helper.clearDatabase();
+
+  helper.createUser(helper.userTest, function(newuser){
+      helper.loginUser(helper.userTest, function(loginuser){
+
+          request(app).post('/api/documents')
+          .set('Authorization', 'JWT ' + loginuser.token)
+          .accept('application/json')
+          .send({name: 'toto.kiwi'})
+          .expect(200)
+          .type('application/json')
+          .end((err, res) => {
+
+            let doc = res.body;
+
+            helper.createUser(helper.userTest2, function(newuser2){
+                helper.loginUser(helper.userTest2, function(loginuser2){
+                    request(app).get('/api/documents/' + doc._id + "/opentoken")
+                    .set('Authorization', 'JWT ' + loginuser2.token)
+                    .accept('application/json')
+                    .expect(200)
+                    .type('application/json')
+                    .end((error, res1) => {
+                        request(app).get('/api/documents/' + doc._id)
+                        .set('Authorization', 'JWT ' + loginuser2.token)
+                        .accept('application/json')
+                        .expect(200)
+                        .type('application/json')
+                        .end((error, res2) => {
+                            t.ok(res2.body.lastOpenedBy.username == loginuser2.username,
+                            "lastOpenedBy has changed after open token");
+                            t.end();
+                        });
+                    });
+                })
+            })
           });
       })
   })

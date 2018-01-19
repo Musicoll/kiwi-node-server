@@ -31,6 +31,9 @@ Ex:
 
 	// session server backend directory
 	"backend_directory": "server_backend"
+
+	// token to verify open grant between flip and api server
+	"open_token": "youropentoken"
 }
 
 ```
