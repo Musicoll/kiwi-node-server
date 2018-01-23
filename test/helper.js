@@ -3,6 +3,8 @@ let PatcherDocument = require('../app/models/PatcherDocument');
 let request = require('supertest');
 let app = require('../app').app;
 let TempUser = require('../app/models/User').TempUser
+const jwt = require('jsonwebtoken');
+const PRIVATE_KEY = require('config').private_key
 
 const userTest = {
   username: 'johndoe',
@@ -71,10 +73,22 @@ loginUser = function(user, next){
     });
 }
 
+createExpiredToken = function(user_id, next){
+
+    let payload = {id: user_id}
+
+    let token = jwt.sign(payload, PRIVATE_KEY, {
+      expiresIn: '0'
+    });
+
+    next(token);
+}
+
 module.exports = {
   clearDatabase: clearDatabase,
   createUser: createUser,
   loginUser: loginUser,
+  createExpiredToken: createExpiredToken,
   userTest: userTest,
   userTest2: userTest2
 };

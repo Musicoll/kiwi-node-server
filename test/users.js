@@ -398,6 +398,38 @@ test('GET /api/users/private should fail with malformed token', t => {
 
 });
 
+test('GET /api/users/private should fail if not token or token expired', t => {
+
+    helper.clearDatabase();
+
+    helper.createUser(helper.userTest, function(newuser){
+
+        const user_id = newuser._id;
+
+        request(app).get('/api/users/private')
+        .set('Accept', 'application/json')
+        .expect(403)
+        .expect('Content-Type', /json/)
+        .end((err3, res3) => {
+
+          t.ok(res3.body.name == "NoAuthTokenError", "Error when no auth token provided");
+
+          helper.createExpiredToken(user_id, function(token){
+
+              request(app).get('/api/users/private')
+              .set('Accept', '/application/json')
+              .set('Authorization', 'JWT ' + token)
+              .expect(403)
+              .expect('Content-Type', /jon/)
+              .end((err, res) => {
+                  t.ok(res.body.name == "TokenExpiredError");
+                  t.end();
+              })
+          })
+        });
+    })
+});
+
 test('GET /api/users/private should pass if a valid token id is provided', t => {
 
   helper.clearDatabase();
