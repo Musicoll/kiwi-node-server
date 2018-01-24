@@ -47,7 +47,7 @@ router.use('/documents', require('./documents'));
 router.use('/users', require('./users'));
 
 // drive endpoints
-router.use('/drive', require('./drive'));
+// router.use('/drive', require('./drive'));
 
 // releases endpoint
 router.use('/release', require('./release'));

@@ -10,6 +10,8 @@ let app = server.app;
 
 let User = require('../app/models/User').User;
 let TempUser = require('../app/models/User').TempUser
+const PRIVATE_KEY = require('config').private_key
+const jwt = require('jsonwebtoken');
 
 test('GET /api/users', t => {
 
@@ -163,6 +165,28 @@ test('Account activation scenario reset information before validation', t => {
     });
 });
 
+test('Reset password scenario', t => {
+
+  helper.clearDatabase();
+
+  helper.createUser(helper.userTest, function(user) {
+
+      let signed_token = jwt.sign({userid: user._id}, PRIVATE_KEY, {
+          expiresIn: '24h'
+      });
+
+      request(app).post('/api/users/passreset')
+      .set('Accept', 'application/json')
+      .send({newpass: "password_2", token: signed_token})
+      .expect(200)
+      .expect('Content-Type', /json/)
+      .end((err, res) => {
+          t.error(err, "reseting password with valid token should succeed");
+          t.end()
+      });
+  });
+})
+
 test('Password must be hashed in database when creating a new user', t => {
 
   helper.clearDatabase();
@@ -231,134 +255,6 @@ test('GET /api/users/:id', t => {
         t.notOk('password' in user, "Password field is NOT returned");
 
         t.end()
-      });
-  });
-});
-
-test('DELETE /api/users/:id with a bad ID should fail', t => {
-
-  helper.clearDatabase();
-
-  const bad_user_id = 123456789;
-
-  request(app).delete('/api/users/' + bad_user_id)
-  .set('Accept', 'application/json')
-  .expect(404)
-  .expect('Content-Type', /json/)
-  .end((err, res) => {
-    t.ok(res.body.error === true, `/api/users/${bad_user_id} is not a valid user id`);
-    t.end(err)
-  });
-
-});
-
-test('DELETE /api/users/:id with a valid ID should pass', t => {
-
-  helper.clearDatabase();
-
-  helper.createUser(helper.userTest, function(newuser) {
-
-      const user_id = newuser._id;
-
-      request(app).delete('/api/users/' + user_id)
-      .set('Accept', 'application/json')
-      .expect(200)
-      .expect('Content-Type', /json/)
-      .end((error, response) => {
-
-        t.ok(response.body.error === false, `user ${user_id} successfully deleted`);
-        t.end()
-
-      });
-  });
-});
-
-test('Update a user with a bad id should fail', t => {
-
-  helper.clearDatabase();
-
-  const bad_user_id = 123456789;
-
-  request(app).put('/api/users/' + bad_user_id)
-  .set('Accept', 'application/json')
-  .expect(404)
-  .expect('Content-Type', /json/)
-  .end((err, res) => {
-    t.ok(res.body.error === true, `/api/users/${bad_user_id} is not a valid user id`);
-    t.end(err)
-  });
-
-});
-
-test('Updating email with a valid email should pass', t => {
-
-  helper.clearDatabase();
-
-  helper.createUser(helper.userTest, function(newuser) {
-
-      const updated_user = {
-        email: 'johny@gmail.com'
-      }
-
-      const user_id = newuser._id;
-
-      request(app).put('/api/users/' + user_id)
-      .set('Accept', 'application/json')
-      .send(updated_user)
-      .expect(200)
-      .expect('Content-Type', /json/)
-      .end((error, response) => {
-
-        t.ok(response.body.error === false, `user ${user_id} successfully updated`);
-
-        User.findById(user_id)
-        .select('email')
-        .then(user => {
-
-          t.same(updated_user.email, user.email, "user email field has been updated")
-          t.end()
-        })
-        .catch(error2 => {
-          t.end(error2)
-        })
-
-      });
-  });
-});
-
-test('Updating password with a valid ID should pass', t => {
-
-  helper.clearDatabase();
-
-  helper.createUser(helper.userTest, function(newuser){
-
-      const updated_user = {
-        password: 'newpassword'
-      }
-
-      const user_id = newuser._id;
-
-      request(app).put('/api/users/' + user_id)
-      .set('Accept', 'application/json')
-      .send(updated_user)
-      .expect(200)
-      .expect('Content-Type', /json/)
-      .end((error, response) => {
-          t.ok(response.body.error === false, `user ${user_id} successfully updated`);
-
-          User.findById(user_id)
-          .select('+password')
-          .then(user => {
-
-              user.comparePassword(updated_user.password)
-              .then(is_valid => {
-                  t.ok(is_valid, 'Comparing raw password with the new hashed one must be equal')
-                  t.end()
-              })
-          })
-          .catch(error2 => {
-              t.end(error2)
-          })
       });
   });
 });

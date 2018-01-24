@@ -221,42 +221,6 @@ router.get('/:id', (req, res) => {
       res.json(user)
     }
   });
-
-});
-
-// DELETE /users/:id
-router.delete('/:id', (req, res, next) => {
-
-  // Todo: return an error when deleting a user already deleted
-  // for now this returns a success message :(
-
-  const user_id = req.params.id;
-
-  User.findByIdAndRemove(user_id, (err, user) => {
-    if(err || !user) {
-      utils.sendJsonError(res, `Deleting user ${user_id} failed`, 404);
-    }
-    else {
-      res.json({"error" : false, "message" : `user ${user_id} deleted`});
-    }
-  });
-
-});
-
-// PUT /users/:id
-router.put('/:id', (req, res, next) => {
-
-  const user_id = req.params.id;
-
-  User.findByIdAndUpdate(user_id, req.body, { runValidators: true }, (err, user) => {
-    if(err || !user) {
-      utils.sendJsonError(res, "Updating user failed", 404);
-    }
-    else {
-      res.json({"error" : false, "message" : `user ${user_id} updated`});
-    }
-  });
-
 });
 
 module.exports = router;
