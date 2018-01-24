@@ -19,14 +19,27 @@ router.get('/private', auth.authenticate(), (req, res) => {
 // GET /users
 router.get('/', (req, res) => {
 
-  // Find all data in the User collection
-  User.find()
-    .then(users => { res.json(users) })
-    .catch(err => {
-      console.log(`Error fetching users : ${err}`);
-      utils.sendJsonError(res, "Error fetching users", 404);
-    });
+    if (!req.query.ids){
+        User.find()
+          .then(users => { res.json(users) })
+          .catch(err => {
+            console.log(`Error fetching users : ${err}`);
+            utils.sendJsonError(res, "Error fetching users", 404);
+          });
+    }
+    else{
+        let user_ids = JSON.parse(req.query.ids);
 
+        User.find({
+             _id: {$in: user_ids}
+            })
+        .then(users => {
+            res.json(users);
+        })
+        .catch(err => {
+            utils.sendJsonError(res, "Error fetching users", 404);
+        });
+    }
 });
 
 function sendEmail(options, next) {
