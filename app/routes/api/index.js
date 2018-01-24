@@ -50,7 +50,7 @@ router.use('/users', require('./users'));
 router.use('/drive', require('./drive'));
 
 // releases endpoint
-router.use('/releases', require('./releases'));
+router.use('/release', require('./release'));
 
 // Send an invalid api path error message for all other routes
 router.all('/*', (req, res, next) => {

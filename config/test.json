@@ -12,5 +12,6 @@
 	},
 	"session_port": 9090,
 	"backend_directory": "server_backend",
-	"open_token": "testopentoken"
+	"open_token": "testopentoken",
+	"kiwi_version": "v0.1.0"
 }

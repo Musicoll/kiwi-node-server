@@ -1,36 +1,23 @@
 //During the test the env variable is set to test
 process.env.NODE_ENV = 'test';
 
+const kiwi_version = require('config').kiwi_version
+
 const test = require('tape');
 let request = require('supertest');
 
 let server = require('../app');
 let app = server.app;
 
-test('GET /api/releases', t => {
+test('GET /api/release', t => {
 
-  request(app).get('/api/releases')
+  request(app).get('/api/release')
   .accept('application/json')
   .expect(200)
   .type('application/json')
   .end((err, res) => {
-      let releases = res.body;
-      t.ok(Array.isArray(releases), "releases is an array");
-      t.end(err);
-  });
-});
-
-test('GET /api/releases/latest', t => {
-
-  request(app).get('/api/releases/latest')
-  .accept('application/json')
-  .expect(200)
-  .type('application/json')
-  .end((err, res) => {
-    let latest = res.body;
-    t.ok(latest["tag_name"], "latest release has a 'tag_name' property");
-    t.ok(latest["url"], "latest release has a 'url' property");
-    t.ok(latest["id"], "latest release has a 'id' property");
+    t.ok(res.body["release"], "release contains version name");
+    t.ok(res.body["release"] == kiwi_version, "release shoul match config info");
     t.end(err);
   });
 
