@@ -24,6 +24,12 @@ const PatcherDocumentSchema = new mongoose.Schema({
     default: Date.now
   },
 
+  createdBy: {
+      type: shortId,
+      ref: 'User',
+      required: true
+  }
+
 });
 
 /**
@@ -57,6 +63,12 @@ function preUpdate(next) {
   // reset name to 'Untitled' if is unset or blank.
   if( !('name' in update) || !update.name) {
      update.name = 'Untitled';
+  }
+
+  if ( 'createdBy' in update) {
+      let err = new Error('Document Can\'t update createdBy field')
+      err.code = 'WrongUpdate'
+      next(err);
   }
 
   next();

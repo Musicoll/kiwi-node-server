@@ -1,5 +1,14 @@
 let User = require('../app/models/User').User;
 let PatcherDocument = require('../app/models/PatcherDocument');
+let request = require('supertest');
+let app = require('../app').app;
+let TempUser = require('../app/models/User').TempUser
+
+const userTest = {
+  username: 'johndoe',
+  email: 'johndoe@gmail.com',
+  password: 'password'
+}
 
 clearDatabase = () => {
   User.remove({}, err => {
@@ -15,6 +24,50 @@ clearDatabase = () => {
   })
 }
 
+createUser = function(user, next){
+
+    request(app).post('/api/users')
+    .set('Accept', 'application/json')
+    .send(user)
+    .expect('Content-Type', /json/)
+    .end((err, res) => {
+
+        TempUser.findOne({email: user.email}, function(err, tempuser) {
+
+            // Request with good activation token.
+            let root = "/verify?tempuserid=" + tempuser._id + "&token=" + tempuser.activationToken;
+
+            request(app).get(root)
+            .set('Accept', 'application/json')
+            .expect(200)
+            .expect('Content-Type', "text/html; charset=utf-8")
+            .end((err, res) => {
+                User.findOne({email: user.email}, function(err, newuser){
+                    next(newuser);
+                })
+            });
+        });
+    })
+};
+
+loginUser = function(user, next){
+    // get an API access token
+    request(app).post('/api/login')
+    .set('Accept', 'application/json')
+    .send({
+        username: user.username,
+        password: user.password
+    })
+    .expect(200)
+    .expect('Content-Type', /json/)
+    .end((err2, res2) => {
+        next(res2.body.user)
+    });
+}
+
 module.exports = {
-  clearDatabase: clearDatabase
+  clearDatabase: clearDatabase,
+  createUser: createUser,
+  loginUser: loginUser,
+  userTest: userTest,
 };
