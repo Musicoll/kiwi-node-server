@@ -25,7 +25,7 @@ module.exports.login = function(req, res, next) {
 
         // user is found and password is right, create and return the token
         user_obj.token = jwt.sign(payload, PRIVATE_KEY, {
-          expiresIn: '24h'
+          expiresIn: 6 * 31 * 24 * 60 * 60 // 6 months
         });
 
         // Return user informations with the JWT.
