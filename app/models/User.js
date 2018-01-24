@@ -47,7 +47,15 @@ const UserSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now
+  },
+
+  blacklisted: {
+      type: Boolean,
+      required: true,
+      default: false,
+      select: false
   }
+
 }, { strict: true });
 
 /**
@@ -56,6 +64,7 @@ const UserSchema = new mongoose.Schema({
 UserSchema.methods.toJSON = function() {
   let obj = this.toObject();
   delete obj.password;
+  delete obj.blacklisted;
   return obj;
 }
 
