@@ -3,6 +3,8 @@ const utils = require('./utils');
 const PatcherDocument = require('../../models/PatcherDocument');
 const auth = require('../../auth')();
 const config = require('config');
+const path = require('path');
+const fs = require('fs')
 
 /**
  * @apiDefine DocumentNotFoundError
@@ -93,19 +95,56 @@ router.post('/', auth.authenticate(), (req, res) => {
     }
 
     PatcherDocument.create(request)
+    .then(patcher => {
+        patcher.populate('createdBy', 'username email', function(err) {
+            patcher.populate('lastOpenedBy', 'username email', function(err) {
+                res.json(patcher);
+            })
+        })
+    })
+})
+
+router.post('/upload', auth.authenticate(), (req, res) => {
+
+    let request = {
+        name: req.query.name,
+        createdBy: req.user._id,
+        lastOpenedBy: req.user._id
+    }
+
+    PatcherDocument.create(request)
       .then(patcher => {
-          patcher.populate('createdBy', 'username email', function(err) {
-              patcher.populate('lastOpenedBy', 'username email', function(err) {
-                  res.json(patcher);
-              })
+
+          var backend_dir = path.join(path.dirname(require.main.filename), '..',
+          config.backend_directory);
+
+          var file = path.join(backend_dir, patcher.session_id.toLowerCase() + '.kiwi');
+
+          fs.writeFile(file, req.body, function(err) {
+
+              if (err)
+              {
+                  utils.sendJsonError(res, "Error creating document", 500);
+                  PatcherDocument.findOneAndRemove({_id, patcher_id}, function(err){
+                      return;
+                  });
+              }
+              else {
+
+                  fs.chmod(file, 0666, function(err){
+                      patcher.populate('createdBy', 'username email', function(err) {
+                          patcher.populate('lastOpenedBy', 'username email', function(err) {
+                              res.json(patcher);
+                          })
+                      });
+                  })
+              }
           })
       })
       .catch(err => {
-          console.log(err)
           utils.sendJsonError(res, "Error creating document", 500);
       });
-
-});
+  });
 
 /**
  * @api {get} /documents/:id Request single Document
@@ -144,8 +183,109 @@ router.get('/:id', auth.authenticate(), (req, res) => {
     .catch(err => {
       utils.sendJsonError(res, "DocumentNotFound", 404);
     });
-
 });
+
+router.get('/:id/download', auth.authenticate(), (req, res) => {
+
+    PatcherDocument.findById(req.params.id)
+      .populate('createdBy', 'username email')
+      .populate('lastOpenedBy', 'username email')
+      .then(patcher => {
+
+          var backend_dir = path.join(path.dirname(require.main.filename), '..',
+          config.backend_directory);
+
+          var file = path.join(backend_dir, patcher.session_id.toLowerCase() + '.kiwi');
+
+          if (fs.existsSync(file) == false)
+          {
+              file = path.join(backend_dir, 'empty.kiwi');
+          }
+
+          res.download(file, patcher.session_id + '.kiwi', function(err) {
+              if (err){
+                  utils.sendJsonError(res, "File not found", 404);
+              }
+          });
+      })
+      .catch(err => {
+        utils.sendJsonError(res, "DocumentNotFound", 404);
+      });
+  });
+
+function copyFile(src_file, dst_file, next) {
+
+  var read_stream = fs.createReadStream(src_file);
+
+  read_stream.on("error", function(err) {
+    next(err);
+  });
+
+  var write_stream = fs.createWriteStream(dst_file);
+
+  write_stream.on("error", function(err) {
+    next(err);
+  });
+
+  write_stream.on("close", function(ex) {
+    next();
+  });
+
+  read_stream.pipe(write_stream);
+}
+
+// Create a clone of the document.
+router.post('/:id/clone', auth.authenticate(), (req, res) => {
+
+    PatcherDocument.findById(req.params.id)
+    .then(patcher_src => {
+
+        let request = {
+            name: patcher_src.name + "_copy",
+            createdBy: req.user._id,
+            lastOpenedBy: req.user._id
+        }
+
+        PatcherDocument.create(request)
+        .then(patcher_dst => {
+
+            var backend_dir = path.join(path.dirname(require.main.filename), '..',
+            config.backend_directory);
+
+            var src_file = path.join(backend_dir, patcher_src.session_id.toLowerCase() + '.kiwi');
+
+            if (fs.existsSync(src_file) == false)
+            {
+                src_file = path.join(backend_dir, 'empty.kiwi');
+            }
+
+            var dst_file = path.join(backend_dir, patcher_dst.session_id.toLowerCase() + '.kiwi');
+
+            copyFile(src_file, dst_file, function(err){
+
+                if (err){
+                    utils.sendJsonError(res, "Error copying ressource", 500);
+                    PatcherDocument.findOneAndRemove({_id, patcher_id}, function(err){
+                        return;
+                    });
+                }
+                else {
+
+                    fs.chmod(dst_file, 0666, function(err){
+                        patcher_dst.populate('createdBy', 'username email', function(err) {
+                            patcher_dst.populate('lastOpenedBy', 'username email', function(err) {
+                                res.json(patcher_dst);
+                            })
+                        })
+                    })
+                }
+            })
+        })
+    })
+    .catch(err =>{
+        utils.sendJsonError(res, "DocumentNotFound", 404);
+    })
+})
 
 /**
  * @api {get} /documents/:id/open Request a toke for opening file.

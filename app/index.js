@@ -16,6 +16,7 @@ require('./views').setup(app);
 // Use application-level middleware for common functionality
 app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
+app.use(bodyParser.raw())
 
 // passport needs to come after session initialization
 const auth = require('./auth')();
