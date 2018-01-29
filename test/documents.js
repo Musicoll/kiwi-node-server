@@ -14,12 +14,25 @@ test('GET /api/documents', t => {
 
   request(app).get('/api/documents')
   .accept('application/json')
-  .expect(200)
+  .expect(403)
   .type('application/json')
   .end((err, res) => {
-    t.ok(res.body instanceof Object, '/api/documents endpoint ok');
-    t.end(err);
+      t.error(err, "Getting documents wihtout login should fail");
   });
+
+  helper.createUser(helper.userTest, function(newuser){
+      helper.loginUser(helper.userTest, function(loginuser){
+          request(app).get('/api/documents')
+          .set('Authorization', 'JWT ' + loginuser.token)
+          .accept('application/json')
+          .expect(200)
+          .type('application/json')
+          .end((err, res) => {
+              t.error(err, "Getting documents with login should succeed");
+              t.end()
+          });
+      })
+  })
 
 });
 
@@ -30,16 +43,33 @@ test('POST /api/documents', t => {
   request(app).post('/api/documents')
   .accept('application/json')
   .send({name: 'toto.kiwi'})
-  .expect(200)
+  .expect(403)
   .type('application/json')
   .end((err, res) => {
-    let doc = res.body;
-    t.ok('name' in doc, "document has a 'name' property");
-    t.ok(doc.name == "toto.kiwi", "document name has been set");
-    t.ok('_id' in doc, "document has an '_id' property");
-    t.ok('session_id' in doc, "document has a 'session_id' property");
-    t.end(err);
+      t.error(err, "Creating documents without login should fail");
   });
+
+  helper.createUser(helper.userTest, function(newuser){
+      helper.loginUser(helper.userTest, function(loginuser){
+          request(app).post('/api/documents')
+          .set('Authorization', 'JWT ' + loginuser.token)
+          .accept('application/json')
+          .send({name: 'toto.kiwi'})
+          .expect(200)
+          .type('application/json')
+          .end((err, res) => {
+            let doc = res.body;
+            t.ok('name' in doc, "document has a 'name' property");
+            t.ok(doc.name == "toto.kiwi", "document name has been set");
+            t.ok('_id' in doc, "document has an '_id' property");
+            t.ok('session_id' in doc, "document has a 'session_id' property");
+            t.ok('createdBy' in doc, "document has a createdBy property");
+            t.ok('lastOpenedBy' in doc, "document has a lastOpenedBy property");
+            t.ok('lastOpenedAt' in doc, "document has a lastOpenedAt property");
+            t.end(err);
+          });
+      })
+  })
 
 });
 
@@ -47,17 +77,21 @@ test('POST /api/documents with an empty name param should set the document title
 
   helper.clearDatabase();
 
-  request(app).post('/api/documents')
-  .accept('application/json')
-  .send({name: ''})
-  .expect(200)
-  .type('application/json')
-  .end((err, res) => {
-    let doc = res.body;
-    t.ok('name' in doc, "document has a 'name' property");
-    t.ok(doc.name == "Untitled", "document has an Untitled name");
-    t.end(err);
-  });
+  helper.createUser(helper.userTest, function(newuser){
+      helper.loginUser(helper.userTest, function(loginuser){
+          request(app).post('/api/documents')
+          .set('Authorization', 'JWT ' + loginuser.token)
+          .accept('application/json')
+          .send({name: ''})
+          .expect(200)
+          .type('application/json')
+          .end((err, res) => {
+              t.error(err, "Creating document should succeed")
+              t.ok(res.body.name == "Untitled", "Document name shoudl be Untitled");
+              t.end()
+          });
+      })
+  })
 
 });
 
@@ -65,14 +99,19 @@ test('GET /api/documents/:id with a bad id', t => {
 
   helper.clearDatabase();
 
-  request(app).get('/api/documents/badid')
-  .accept('application/json')
-  .expect(404)
-  .type('application/json')
-  .end((err, res) => {
-    t.ok(res.body.error === true, '/api/documents/badid is not a valid document id')
-    t.end(err);
-  });
+  helper.createUser(helper.userTest, function(newuser){
+      helper.loginUser(helper.userTest, function(loginuser){
+          request(app).get('/api/documents/badid')
+          .set('Authorization', 'JWT ' + loginuser.token)
+          .accept('application/json')
+          .expect(404)
+          .type('application/json')
+          .end((err, res) => {
+            t.ok(res.body.error === true, '/api/documents/badid is not a valid document id')
+            t.end(err);
+          });
+      })
+  })
 
 });
 
@@ -80,84 +119,83 @@ test('GET /api/documents/:id', t => {
 
   helper.clearDatabase();
 
-  request(app).post('/api/documents')
-  .accept('application/json')
-  .send({name: 'toto.kiwi'})
-  .expect(200)
-  .type('application/json')
-  .end((err, res) => {
+  helper.createUser(helper.userTest, function(newuser){
+      helper.loginUser(helper.userTest, function(loginuser){
 
-    let doc = res.body;
+          request(app).post('/api/documents')
+          .set('Authorization', 'JWT ' + loginuser.token)
+          .accept('application/json')
+          .send({name: 'toto.kiwi'})
+          .expect(200)
+          .type('application/json')
+          .end((err, res) => {
 
-    request(app).get('/api/documents/' + doc._id)
-    .accept('application/json')
-    .expect(200)
-    .type('application/json')
-    .end((error, response) => {
-      t.same(doc, response.body, 'document can be retrieved by id');
-      t.end(err);
-    });
-  });
+            let doc = res.body;
 
-});
+            request(app).get('/api/documents/' + doc._id)
+            .accept('application/json')
+            .expect(403)
+            .type('application/json')
+            .end((error, response) => {
+                t.error(error, "Get document should fail witout authentification")
+            });
 
-test('delete a document with a bad id should fail', t => {
-
-  helper.clearDatabase();
-
-  const bad_id = 'zozo';
-  request(app).delete('/api/documents/' + bad_id)
-  .accept('application/json')
-  .expect(404)
-  .type('application/json')
-  .end((error, response) => {
-    t.ok(response.body.error === true, `document with id '${bad_id}' can not be deleted`)
-    t.end(error);
-  });
-
-});
-
-test('DELETE /api/documents/:id', t => {
-
-  helper.clearDatabase();
-
-  request(app).post('/api/documents')
-  .accept('application/json')
-  .send()
-  .expect(200)
-  .type('application/json')
-  .end((err, res) => {
-
-    let doc = res.body;
-
-    t.error(err, `document ${doc._id} created`)
-
-    request(app).delete('/api/documents/' + doc._id)
-    .accept('application/json')
-    .expect(200)
-    .type('application/json')
-    .end((error, response) => {
-      t.ok(response.body.error === false, `document ${doc._id} has been successfully deleted`)
-      t.end(error);
-    });
-  });
+            request(app).get('/api/documents/' + doc._id)
+            .set('Authorization', 'JWT ' + loginuser.token)
+            .accept('application/json')
+            .expect(200)
+            .type('application/json')
+            .end((error, response) => {
+                t.same(doc, response.body, 'document can be retrieved by id');
+                t.end();
+            });
+          });
+      })
+  })
 
 });
 
-test('update a document with a bad id should fail', t => {
+test('GET /api/documents/:id/opentoken', t => {
 
   helper.clearDatabase();
 
-  const bad_id = 'zozo';
-  request(app).put('/api/documents/' + bad_id)
-  .accept('application/json')
-  .send({name: 'toto.kiwi'})
-  .expect(404)
-  .type('application/json')
-  .end((error, response) => {
-    t.ok(response.body.error === true, `document with id '${bad_id}' can not be updated`)
-    t.end(error);
-  });
+  helper.createUser(helper.userTest, function(newuser){
+      helper.loginUser(helper.userTest, function(loginuser){
+
+          request(app).post('/api/documents')
+          .set('Authorization', 'JWT ' + loginuser.token)
+          .accept('application/json')
+          .send({name: 'toto.kiwi'})
+          .expect(200)
+          .type('application/json')
+          .end((err, res) => {
+
+            let doc = res.body;
+
+            helper.createUser(helper.userTest2, function(newuser2){
+                helper.loginUser(helper.userTest2, function(loginuser2){
+                    request(app).get('/api/documents/' + doc._id + "/opentoken")
+                    .set('Authorization', 'JWT ' + loginuser2.token)
+                    .accept('application/json')
+                    .expect(200)
+                    .type('application/json')
+                    .end((error, res1) => {
+                        request(app).get('/api/documents/' + doc._id)
+                        .set('Authorization', 'JWT ' + loginuser2.token)
+                        .accept('application/json')
+                        .expect(200)
+                        .type('application/json')
+                        .end((error, res2) => {
+                            t.ok(res2.body.lastOpenedBy.username == loginuser2.username,
+                            "lastOpenedBy has changed after open token");
+                            t.end();
+                        });
+                    });
+                })
+            })
+          });
+      })
+  })
 
 });
 
@@ -168,37 +206,130 @@ test('PUT /api/documents/:id', t => {
   const old_name = 'toto.kiwi';
   const new_name = 'tata.kiwi';
 
-  request(app).post('/api/documents')
-  .accept('application/json')
-  .send({name: old_name})
-  .expect(200)
-  .type('application/json')
-  .end((err, res) => {
+  helper.createUser(helper.userTest, function(newuser){
+      helper.loginUser(helper.userTest, function(loginuser){
 
-    let doc = res.body;
+          request(app).post('/api/documents')
+          .accept('application/json')
+          .set('Authorization', 'JWT ' + loginuser.token)
+          .send({name: old_name})
+          .expect(200)
+          .type('application/json')
+          .end((err, res) => {
 
-    t.error(err, `document ${doc._id} created`)
+            let doc = res.body;
 
-    request(app).put('/api/documents/' + doc._id)
-    .accept('application/json')
-    .send({name: new_name})
-    .expect(200)
-    .type('application/json')
-    .end((error, response) => {
-      t.ok(response.body.error === false, `document ${doc._id} has been successfully updated`)
+            t.error(err, `document ${doc._id} created`)
 
-      request(app).get('/api/documents/' + doc._id)
-      .expect(200)
-      .type('application/json')
-      .end((error2, response2) => {
-        t.same(response2.body.name, new_name, `document name has been successfully updated`)
+            request(app).put('/api/documents/' + doc._id)
+            .accept('application/json')
+            .send({name: new_name})
+            .expect(403)
+            .type('application/json')
+            .end((error, response) => {
+                t.error(error, "Put without authentication should fail");
+            })
 
-        helper.clearDatabase();
-        t.end(error2);
-      });
-    });
+            request(app).put('/api/documents/' + doc._id)
+            .set('Authorization', 'JWT ' + loginuser.token)
+            .accept('application/json')
+            .send({name: new_name})
+            .expect(200)
+            .type('application/json')
+            .end((error, response) => {
+              t.ok(response.body.error === false, `document ${doc._id} has been successfully updated`)
 
-  });
+              request(app).get('/api/documents/' + doc._id)
+              .set('Authorization', 'JWT ' + loginuser.token)
+              .expect(200)
+              .type('application/json')
+              .end((error2, response2) => {
+                t.same(response2.body.name, new_name, `document name has been successfully updated`)
+
+                request(app).put('/api/documents/' + doc._id)
+                .set('Authorization', 'JWT ' + loginuser.token)
+                .accept('application/json')
+                .send({createdBy: "3C65373959"})
+                .expect(400)
+                .type('application/json')
+                .end((error, response) => {
+                    t.error(error, "Updating createdBy field should fail");
+                    helper.clearDatabase();
+                    t.end(error);
+                });
+              });
+            });
+
+          });
+
+      })
+  })
+
+});
+
+test('PUT /api/documents/:id trash document', t => {
+
+  helper.clearDatabase();
+
+  helper.createUser(helper.userTest, function(newuser){
+      helper.loginUser(helper.userTest, function(loginuser){
+
+          request(app).post('/api/documents')
+          .accept('application/json')
+          .set('Authorization', 'JWT ' + loginuser.token)
+          .send({name: 'new-doc'})
+          .expect(200)
+          .type('application/json')
+          .end((err, res) => {
+
+              let doc = res.body;
+
+              request(app).put('/api/documents/'+ doc._id)
+              .accept('application/json')
+              .set('Authorization', 'JWT ' + loginuser.token)
+              .send({trashed: true})
+              .expect(200)
+              .type('application/json')
+              .end((err, res) => {
+                  t.error(err, "trashing document should succeed");
+
+                  request(app).get('/api/documents/' + doc._id)
+                  .accept('application/json')
+                  .set('Authorization', 'JWT ' + loginuser.token)
+                  .expect(200)
+                  .type('application/json')
+                  .end((err, res) => {
+                      t.error(err, "getting document after trashing");
+                      t.ok('trashedBy' in res.body, "trashedBy field exists");
+                      t.ok('trashedDate' in res.body, "trashedDate field exists");
+                      t.ok(res.body.trashed == true, "trashed field should be true");
+
+                      request(app).put('/api/documents/' + doc._id)
+                      .accept('application/json')
+                      .set('Authorization', 'JWT ' + loginuser.token)
+                      .send({trashed: false})
+                      .expect(200)
+                      .type('application/json')
+                      .end((err, res) => {
+                          t.error(err);
+                          request(app).get('/api/documents/' + doc._id)
+                          .accept('application/json')
+                          .set('Authorization', 'JWT ' + loginuser.token)
+                          .expect(200)
+                          .type('application/json')
+                          .end((err, res) => {
+                              t.notOk("trashedBy" in res.body, "untrash removes trashedBy field");
+                              t.notOk("trashedDate" in res.body, "untrash removes trashedDate field");
+                              t.ok(res.body.trashed == false, "trashed false");
+                              t.end();
+                          })
+                      })
+                  })
+              })
+          });
+
+      })
+  })
 
 });
 

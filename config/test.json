@@ -11,5 +11,6 @@
 		}
 	},
 	"session_port": 9090,
-	"backend_directory": "server_backend"
+	"backend_directory": "server_backend",
+	"open_token": "testopentoken"
 }

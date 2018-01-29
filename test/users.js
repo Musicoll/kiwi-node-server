@@ -11,38 +11,6 @@ let app = server.app;
 let User = require('../app/models/User').User;
 let TempUser = require('../app/models/User').TempUser
 
-const userTest = {
-  username: 'johndoe',
-  email: 'johndoe@gmail.com',
-  password: 'password'
-}
-
-let createUser = function(user, next){
-
-    request(app).post('/api/users')
-    .set('Accept', 'application/json')
-    .send(user)
-    .expect('Content-Type', /json/)
-    .end((err, res) => {
-
-        TempUser.findOne({email: user.email}, function(err, tempuser) {
-
-            // Request with good activation token.
-            let root = "/verify?tempuserid=" + tempuser._id + "&token=" + tempuser.activationToken;
-
-            request(app).get(root)
-            .set('Accept', 'application/json')
-            .expect(200)
-            .expect('Content-Type', "text/html; charset=utf-8")
-            .end((err, res) => {
-                User.findOne({email: user.email}, function(err, newuser){
-                    next(newuser);
-                })
-            });
-        });
-    })
-};
-
 test('GET /api/users', t => {
 
   helper.clearDatabase();
@@ -81,7 +49,7 @@ test('Create a new user with only email provided should fail', t => {
 
   request(app).post('/api/users')
   .set('Accept', 'application/json')
-  .send({email: userTest.email})
+  .send({email: helper.userTest.email})
   .expect(400)
   .expect('Content-Type', /json/)
   .end((err, res) => {
@@ -98,13 +66,13 @@ test('Account activation standard scenario', t => {
 
     request(app).post('/api/users')
     .set('Accept', 'application/json')
-    .send(userTest)
+    .send(helper.userTest)
     .expect('Content-Type', /json/)
     .end((err, res) => {
 
         t.error(err, 'user has been created')
 
-        TempUser.findOne({email: userTest.email}, function(err, user) {
+        TempUser.findOne({email: helper.userTest.email}, function(err, user) {
 
             t.ok(user && !err, "good registration creates temp user");
 
@@ -148,17 +116,17 @@ test('Account activation scenario reset information before validation', t => {
 
     request(app).post('/api/users')
     .set('Accept', 'application/json')
-    .send(userTest)
+    .send(helper.userTest)
     .expect('Content-Type', /json/)
     .end((err, res) => {
 
-        TempUser.findOne({email: userTest.email}, function(err, user) {
+        TempUser.findOne({email: helper.userTest.email}, function(err, user) {
 
             t.ok(user && !err, "good registration creates temp user");
 
             let old_root = "/verify?tempuserid=" + user._id + "&token=" + user.activationToken;
 
-            let userTestModified = userTest;
+            let userTestModified = helper.userTest;
             userTestModified.username = 'johndoe2'
 
             // Reset temporary user.
@@ -199,7 +167,7 @@ test('Password must be hashed in database when creating a new user', t => {
 
   helper.clearDatabase();
 
-  createUser(userTest, function(user) {
+  helper.createUser(helper.userTest, function(user) {
 
       const user_id = user._id
 
@@ -208,12 +176,12 @@ test('Password must be hashed in database when creating a new user', t => {
       .then(user => {
 
         // test valid then invalid password:
-        user.comparePassword(userTest.password)
+        user.comparePassword(helper.userTest.password)
         .then(is_valid => {
           t.ok(is_valid, 'Comparing raw password with the hashed one must be equal')
         })
         .then(() => {
-          user.comparePassword(userTest.password + 'bad_pwd')
+          user.comparePassword(helper.userTest.password + 'bad_pwd')
           .then(is_valid => {
             t.ok(!is_valid, 'Comparing bad raw password with the hashed one must NOT be equal')
             t.end()
@@ -245,7 +213,7 @@ test('GET /api/users/:id', t => {
 
   helper.clearDatabase();
 
-  createUser(userTest, function(newuser){
+  helper.createUser(helper.userTest, function(newuser){
 
       request(app).get('/api/users/' + newuser._id)
       .set('Accept', 'application/json')
@@ -288,7 +256,7 @@ test('DELETE /api/users/:id with a valid ID should pass', t => {
 
   helper.clearDatabase();
 
-  createUser(userTest, function(newuser) {
+  helper.createUser(helper.userTest, function(newuser) {
 
       const user_id = newuser._id;
 
@@ -326,7 +294,7 @@ test('Updating email with a valid email should pass', t => {
 
   helper.clearDatabase();
 
-  createUser(userTest, function(newuser) {
+  helper.createUser(helper.userTest, function(newuser) {
 
       const updated_user = {
         email: 'johny@gmail.com'
@@ -362,7 +330,7 @@ test('Updating password with a valid ID should pass', t => {
 
   helper.clearDatabase();
 
-  createUser(userTest, function(newuser){
+  helper.createUser(helper.userTest, function(newuser){
 
       const updated_user = {
         password: 'newpassword'
@@ -430,18 +398,50 @@ test('GET /api/users/private should fail with malformed token', t => {
 
 });
 
+test('GET /api/users/private should fail if not token or token expired', t => {
+
+    helper.clearDatabase();
+
+    helper.createUser(helper.userTest, function(newuser){
+
+        const user_id = newuser._id;
+
+        request(app).get('/api/users/private')
+        .set('Accept', 'application/json')
+        .expect(403)
+        .expect('Content-Type', /json/)
+        .end((err3, res3) => {
+
+          t.ok(res3.body.name == "NoAuthTokenError", "Error when no auth token provided");
+
+          helper.createExpiredToken(user_id, function(token){
+
+              request(app).get('/api/users/private')
+              .set('Accept', '/application/json')
+              .set('Authorization', 'JWT ' + token)
+              .expect(403)
+              .expect('Content-Type', /jon/)
+              .end((err, res) => {
+                  t.ok(res.body.name == "TokenExpiredError");
+                  t.end();
+              })
+          })
+        });
+    })
+});
+
 test('GET /api/users/private should pass if a valid token id is provided', t => {
 
   helper.clearDatabase();
 
-  createUser(userTest, function(newuser){
+  helper.createUser(helper.userTest, function(newuser){
 
       const user_id = newuser._id;
 
       // get an API access token
       request(app).post('/api/login')
       .set('Accept', 'application/json')
-      .send(userTest)
+      .send(helper.userTest)
       .expect(200)
       .expect('Content-Type', /json/)
       .end((err2, res2) => {

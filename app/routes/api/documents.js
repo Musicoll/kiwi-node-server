@@ -1,6 +1,8 @@
 const router = require('express').Router();
 const utils = require('./utils');
 const PatcherDocument = require('../../models/PatcherDocument');
+const auth = require('../../auth')();
+const config = require('config');
 
 /**
  * @apiDefine DocumentNotFoundError
@@ -44,10 +46,12 @@ const PatcherDocument = require('../../models/PatcherDocument');
  *    }
  * ]
  */
-router.get('/', (req, res) => {
+router.get('/', auth.authenticate(), (req, res) => {
 
   // Find all data in the PatcherDocument collection
   PatcherDocument.find()
+    .populate('createdBy', 'email username')
+    .populate('lastOpenedBy', 'email username')
     .then(patchers => { res.json(patchers) })
     .catch(err => {
       utils.sendJsonError(res, "Error fetching documents", 404);
@@ -80,13 +84,26 @@ router.get('/', (req, res) => {
  *    }
  *
  */
-router.post('/', (req, res) => {
+router.post('/', auth.authenticate(), (req, res) => {
 
-  PatcherDocument.create(req.body)
-    .then(patcher => { res.json(patcher); })
-    .catch(err => {
-      utils.sendJsonError(res, "Error creating document", 500);
-    });
+    let request = {
+        name: req.body.name,
+        createdBy: req.user._id,
+        lastOpenedBy: req.user._id
+    }
+
+    PatcherDocument.create(request)
+      .then(patcher => {
+          patcher.populate('createdBy', 'username email', function(err) {
+              patcher.populate('lastOpenedBy', 'username email', function(err) {
+                  res.json(patcher);
+              })
+          })
+      })
+      .catch(err => {
+          console.log(err)
+          utils.sendJsonError(res, "Error creating document", 500);
+      });
 
 });
 
@@ -118,14 +135,50 @@ router.post('/', (req, res) => {
  * @apiUse DocumentNotFoundError
  *
  */
-router.get('/:id', (req, res) => {
+router.get('/:id', auth.authenticate(), (req, res) => {
 
   PatcherDocument.findById(req.params.id)
+    .populate('createdBy', 'username email')
+    .populate('lastOpenedBy', 'username email')
     .then(patcher => { res.json(patcher) })
     .catch(err => {
       utils.sendJsonError(res, "DocumentNotFound", 404);
     });
 
+});
+
+/**
+ * @api {get} /documents/:id/open Request a toke for opening file.
+ * @apiName OpenDocument
+ * @apiGroup Documents
+ * @apiVersion 0.0.1
+ *
+ * @apiParam {ObjectId} id Document unique Object Id.
+ *
+ * @apiSuccess {String} token access token that flip server to open document.
+ *
+ * @apiSuccessExample Success-Response:
+ * HTTP/1.1 200 OK
+ *   {
+ *      "_id": "58b1ab53b65b10af1123409e",
+ *    }
+ *
+ *
+ * @apiUse DocumentNotFoundError
+ *
+ */
+router.get('/:id/opentoken', auth.authenticate(), (req, res) => {
+
+    let query = {lastOpenedAt: Date.now(), lastOpenedBy: req.user._id}
+
+    PatcherDocument.findByIdAndUpdate(req.params.id, query)
+      .then(patcher => {
+        res.json({"error" : false,
+                  "token" : config.open_token});
+      })
+      .catch(err => {
+          utils.sendJsonError(res, "DocumentNotFound", 404);
+      })
 });
 
 /**
@@ -151,51 +204,27 @@ router.get('/:id', (req, res) => {
  * @apiUse DocumentNotFoundError
  *
  */
-router.put('/:id', (req, res, next) => {
+router.put('/:id', auth.authenticate(), (req, res, next) => {
+
+    if (req.body.trashed && req.body.trashed == true){
+        req.body.trashedBy = req.user._id;
+        req.body.trashedDate = Date.now();
+    }
 
   PatcherDocument.findByIdAndUpdate(req.params.id, req.body)
     .then(patcher => {
       res.json({"error" : false, "message" : "document " + req.params.id + " updated"});
     })
     .catch(err => {
-      utils.sendJsonError(res, "DocumentNotFound", 404);
-    });
-
-});
-
-/**
- * @api {delete} /documents/:id Delete a Document
- * @apiName DeleteDocument
- * @apiGroup Documents
- * @apiVersion 0.0.1
- *
- * @apiParam {ObjectId} id The Document unique Object Id.
- *
- *
- * @apiSuccess {Boolean} error false.
- * @apiSuccess {String}  message The success message.
- *
- * @apiSuccessExample Success-Response:
- * HTTP/1.1 200 OK
- *   {
- *      "error": false,
- *      "message": "document :id deleted",
- *    }
- *
- * @apiUse DocumentNotFoundError
- *
- */
-router.delete('/:id', (req, res, next) => {
-
-  // Todo: return an error when deleting a document already deleted
-  // for now this returns a success message :(
-
-  PatcherDocument.findByIdAndRemove(req.params.id)
-    .then(patcher => {
-      res.json({"error" : false, "message" : "document " + req.params.id + " deleted"});
-    })
-    .catch(err => {
-      utils.sendJsonError(res, "DocumentNotFound", 404);
+        if (err.code == 'CreatedBy') {
+            utils.sendJsonError(res, 'createdBy not allowed update', 400);
+        }
+        else if(err.code == 'Trash'){
+            utils.sendJsonError(res, 'updating trash failed', 500);
+        }
+        else {
+            utils.sendJsonError(res, "DocumentNotFound", 404);
+        }
     });
 
 });
