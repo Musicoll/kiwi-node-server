@@ -34,6 +34,9 @@ Ex:
 
 	// token to verify open grant between flip and api server
 	"open_token": "youropentoken"
+
+	// the compatible version of kiwi.
+	"kiwi_version": "v0.1.0"
 }
 
 ```

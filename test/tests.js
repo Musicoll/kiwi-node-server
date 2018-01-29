@@ -26,8 +26,8 @@ users_tests();
 let documents_tests = require('./documents');
 documents_tests();
 
-// let releases_tests  = require('./releases')
-// releases_tests();
+let releases_tests  = require('./releases')
+releases_tests();
 
 test('teardown', t => {
   mongoose.connection.close(err => {

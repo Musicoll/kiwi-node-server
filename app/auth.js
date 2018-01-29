@@ -18,13 +18,16 @@ const User = require('./models/User').User;
 passport.use(new LocalStrategy({usernameField: 'username' }, function(username, password, done) {
 
 	User.findOne({ $or: [ {email: username}, {username: username}] })
-	.select('_id +password')
+	.select('_id + password + blacklisted')
   .then(user => {
 
 		if (!user) {
 			// can't find username
 			return done(null, false, { message: 'Bad email/username and password' });
 		}
+        else if(user.blacklisted == true){
+            return done(null, false, {message: 'User is blacklisted'});
+        }
 
 		user.comparePassword(password)
 		.then(isMatch => {
@@ -34,6 +37,7 @@ passport.use(new LocalStrategy({usernameField: 'username' }, function(username, 
 
 		    // remove the password field from the payload !
 		    delete user['password'];
+            delete user['blacklisted'];
 
 				return done(null, user);
 			}
@@ -53,14 +57,20 @@ passport.use(new LocalStrategy({usernameField: 'username' }, function(username, 
 
 passport.use(new JwtStrategy(jwtStrategyParams, function(jwt_payload, done) {
 
-	User.findOne({_id: jwt_payload.id}, function(err, user) {
+    User.findOne({_id: jwt_payload.id})
+    .select('_id + blacklisted')
+    .then(user => {
 
-		if (err || !user) {
-			return done(err, false, {msg: "User not found!"});
-		}
-
-		return done(null, user);
-	});
+        if (user.blacklisted == false){
+            return done(null, {_id: user._id})
+        }
+        else {
+            return done(null, null, new Error("User is blacklisted"));
+        }
+    })
+    .catch(err => {
+        return done(err, false, {msg: "User not found!"});
+    })
 }))
 
 module.exports = function() {
