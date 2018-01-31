@@ -5,7 +5,7 @@ const test = require('tape');
 let request = require('supertest');
 let mongoose = require('mongoose');
 
-let server = require('../app/app');
+let server = require('../app');
 let app = server.app;
 
 test('setup', t => {
@@ -25,6 +25,9 @@ users_tests();
 
 let documents_tests = require('./documents');
 documents_tests();
+
+let releases_tests  = require('./releases')
+releases_tests();
 
 test('teardown', t => {
   mongoose.connection.close(err => {

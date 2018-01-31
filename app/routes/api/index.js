@@ -1,13 +1,13 @@
-let express = require('express');
-let router = express.Router();
-let utils = require('./utils');
+const router = require('express').Router();
+const utils = require('./utils');
 
 const api_paths = {
   auth_url:       "/auth",
   users_url:      "/users",
   user_url :      "/users/:id",
   documents_url:  "/documents",
-  document_url:   "/documents/:id"
+  document_url:   "/documents/:id",
+  releases_url:   "/releases"
 }
 
 /**
@@ -29,7 +29,8 @@ const api_paths = {
  *        "users_url":      "/users",
  *        "user_url" :      "/users/:id",
  *        "documents_url":  "/documents",
- *        "document_url":   "/documents/:id"
+ *        "document_url":   "/documents/:id",
+ *        "releases_url":   "/releases"
  *     }
  */
 router.get('/', (req, res, next) => {
@@ -37,13 +38,19 @@ router.get('/', (req, res, next) => {
 });
 
 // Authentication endpoint
-router.use('/auth', require('./auth').router);
+router.post('/login', require('./auth').login);
 
 // documents endpoints
 router.use('/documents', require('./documents'));
 
 // users endpoints
 router.use('/users', require('./users'));
+
+// drive endpoints
+// router.use('/drive', require('./drive'));
+
+// releases endpoint
+router.use('/release', require('./release'));
 
 // Send an invalid api path error message for all other routes
 router.all('/*', (req, res, next) => {

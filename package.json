@@ -4,10 +4,11 @@
   "description": "Node.js server for Kiwi app",
   "main": "server.js",
   "scripts": {
-    "start": "NODE_ENV=dev node server.js",
+    "start": "NODE_CONFIG_DIR=../config NODE_ENV=prod node server.js",
+    "nodemon": "NODE_ENV=dev nodemon server.js",
     "test": "NODE_ENV=test tape test/tests.js | tap-spec",
     "test-cov": "rm -rf coverage && NODE_ENV=test istanbul cover node_modules/.bin/tape test/tests.js | tap-spec",
-    "documentation": "apidoc -i routes/api/ -o docs/"
+    "documentation": "apidoc -i app/routes/api/ -o docs/"
   },
   "repository": {
     "type": "git",
@@ -43,11 +44,19 @@
     "bluebird": "^3.4.7",
     "body-parser": "^1.16.1",
     "config": "^1.25.1",
-    "ejs": "^2.5.6",
+    "cookie-parser": "^1.4.3",
     "express": "^4.14.1",
+    "express-vue": "^3.14.3",
     "jsonwebtoken": "^7.3.0",
     "mongoose": "^4.8.4",
-    "mongoose-shortid-nodeps": "^0.6.5"
+    "mongoose-materialized": "^0.1.9",
+    "mongoose-shortid-nodeps": "^0.6.5",
+    "mongoose-validator": "^1.3.2",
+    "nodemailer": "^4.4.1",
+    "passport": "^0.3.2",
+    "passport-jwt": "^2.2.1",
+    "passport-local": "^1.0.0",
+    "serve-favicon": "^2.4.3"
   },
   "devDependencies": {
     "coveralls": "^2.12.0",

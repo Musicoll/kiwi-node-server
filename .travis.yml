@@ -8,6 +8,7 @@ node_js:
 services: mongodb
 
 install:
+  - mongod --version
   - npm install
 
 script:

@@ -23,6 +23,8 @@ Node.js Web Server and API for [Kiwi](https://github.com/Musicoll/Kiwi).
 | /api/users/:id     | **GET**     | Get informations about a given user     | :white_check_mark: |
 | /api/users/:id     | **PUT**     | Update user informations                | :white_check_mark: |
 | /api/users/:id     | **DELETE**  | Delete a user with a given id           | :white_check_mark: |
+| /api/releases     | **GET**  | Get all releases informations           | :white_check_mark: |
+| /api/releases/latest     | **GET**  | Get latest release informations           | :white_check_mark: |
 
 ## Requirements
 

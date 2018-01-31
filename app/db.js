@@ -33,7 +33,12 @@ connect = (done) => {
     });
   });
 
-  mongoose.connect(config.db_url);
+  mongoose.connect(config.db_url, {
+    useMongoClient: true,
+    socketTimeoutMS: 0,
+    keepAlive: true,
+    reconnectTries: 30
+  });
 }
 
 module.exports = {
