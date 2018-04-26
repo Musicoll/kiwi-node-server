@@ -69,28 +69,6 @@ UserSchema.methods.toJSON = function() {
 }
 
 /**
- * Password Hashing Middleware
- * hash the password if it's a new password or if it has been modified.
- */
- UserSchema.pre('save', function (next) {
-
-   let user = this;
-   if(!user.isModified('password')) {
-     next();
-   }
-
-   bcrypt.hash(user.password, SALT_WORK_FACTOR)
-   .then(pwd_hash => {
-     user.password = pwd_hash;
-     next();
-   })
-   .catch(err => {
-     next(err);
-   });
-
-});
-
-/**
  * Called before an update of the User
  * Hash password if it is a field of the update query
  * Note: We do not have access to the actual document here,
@@ -168,7 +146,51 @@ const TempUserSchema = new mongoose.Schema({
   activationToken: {
       type: String,
       required: true
+  },
+
+  schemaVersion: {
+      type: Number
   }
+});
+
+/**
+ * Password Hashing Middleware
+ * hash the password if it's a new password or if it has been modified.
+ */
+ TempUserSchema.post('init', function(tempuser){
+
+     if (!tempuser.schemaVersion || tempuser.schemaVersion < 1)
+     {
+         let hash = bcrypt.hashSync(tempuser.password, SALT_WORK_FACTOR);
+         tempuser.password = hash;
+         tempuser.schemaVersion = 1;
+         tempuser.save();
+     }
+ });
+
+/**
+ * Password Hashing Middleware
+ * hash the password if it's a new password or if it has been modified.
+ */
+ TempUserSchema.pre('save', function (next) {
+
+   let user = this;
+
+   user.schemaVersion = 1;
+
+   if(!user.isModified('password')) {
+     next();
+   }
+
+   bcrypt.hash(user.password, SALT_WORK_FACTOR)
+   .then(pwd_hash => {
+     user.password = pwd_hash;
+     next();
+   })
+   .catch(err => {
+     next(err);
+   });
+
 });
 
 TempUserSchema.index({"expireAt": 1}, {expireAfterSeconds: 0})
