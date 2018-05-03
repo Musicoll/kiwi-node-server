@@ -16,7 +16,35 @@ router.get('/private', auth.authenticate(), (req, res) => {
 
 });
 
-// GET /users
+/**
+ * @api {get} /users Get a list of users.
+ * @apiName GetUsers
+ * @apiGroup Users
+ * @apiVersion 1.0.0
+ *
+ * @apiHeader {String} ids A list of user identifiers (optional).
+ *
+ * @apiSuccess {Array} array A list of users.
+ *
+ * @apiSuccessExample Success-Response:
+ *[
+ *     {
+ *         "_id": "1EE1DF05798F66B7",
+ *         "username": "jean-millot-dev",
+ *         "email": "jean_millot@hotmail.com",
+ *         "__v": 0,
+ *         "createdAt": "2018-04-26T14:00:05.754Z"
+ *     },
+ *     {
+ *         "_id": "5A2AD92CA3A5D91E",
+ *         "username": "jean-millot",
+ *         "email": "jean.millot7@gmail.com",
+ *         "__v": 0,
+ *         "createdAt": "2018-04-26T15:00:34.648Z"     }
+ * ]
+ *
+ *
+ */
 router.get('/', (req, res) => {
 
     if (!req.query.ids){
@@ -61,7 +89,23 @@ function sendEmail(options, next) {
     });
 }
 
-// POST /users
+/**
+ * @api {post} /users Create a temporary user.
+ * @apiName CreateUser
+ * @apiGroup Users
+ * @apiVersion 1.0.0
+ * @apiDescription Create a temporary user and send an email with validation link.
+ *
+ * @apiParam {String} email The user email adress.
+ * @apiParam {String} username The user name.
+ * @apiParam {String} password User password.
+ *
+ * @apiSuccessExample Success-Response:
+ *{
+ *     "message": "Activation mail sent"
+ *}
+ *
+ */
 router.post('/', function (req, res) {
 
     if (!req.body.email || !req.body.username || !req.body.password) {
@@ -132,7 +176,21 @@ router.post('/', function (req, res) {
     });
 });
 
-// POST /users/passwordtoken
+/**
+ * @api {post} /users/passtoken Request reset password.
+ * @apiName PasswordToken
+ * @apiGroup Users
+ * @apiVersion 1.0.0
+ * @apiDescription Send an email to user with a reset password token.
+ *
+ * @apiParam {String} email The user email adress.
+ *
+ * @apiSuccessExample Success-Response:
+ *{
+ *     "message": "Reset password sent"
+ *}
+ *
+ */
 router.post('/passtoken', (req, res) => {
     if (req.body.email){
         User.findOne({email: req.body.email}, function(err, user) {
@@ -167,7 +225,22 @@ router.post('/passtoken', (req, res) => {
     }
 })
 
-// POST /users/passwordreset
+/**
+ * @api {post} /users/passreset Reset user password.
+ * @apiName PasswordToken
+ * @apiGroup Users
+ * @apiVersion 1.0.0
+ * @apiDescription Update the user password with given token.
+ *
+ * @apiParam {String} token The token send by mail.
+ * @apiParam {String} newpass The new users's password.
+ *
+ * @apiSuccessExample Success-Response:
+ *{
+ *     "message": "Password updated"
+ *}
+ *
+ */
 router.post('/passreset', (req, res) => {
 
     if (req.body.token && req.body.newpass){
@@ -208,7 +281,25 @@ router.post('/passreset', (req, res) => {
     }
 });
 
-// GET /users/:id
+/**
+ * @api {get} /users/:id Get information about a user.
+ * @apiName GetUser
+ * @apiGroup Users
+ * @apiVersion 1.0.0
+ * @apiDescription Return informations of specified user.
+ *
+ * @apiParam {String} id The user identifier.
+ *
+ * @apiSuccessExample Success-Response:
+ * {
+ *     "_id": "1EE1DF05798F66B7",
+ *     "username": "jean-millot-dev",
+ *     "email": "jean_millot@hotmail.com",
+ *     "__v": 0,
+ *     "createdAt": "2018-04-26T14:00:05.754Z"
+ * }
+ *
+ */
 router.get('/:id', (req, res) => {
 
   const user_id = req.params.id;
