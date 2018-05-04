@@ -5,7 +5,7 @@ const utils = require('./utils');
 /**
  * @api {get} /releases Request the kiwi version compatible with this API.
  * @apiName GetRelease
- * @apiGroup Release
+ * @apiGroup Releases
  * @apiVersion 0.0.1
  * @apiDescription Api release endpoing check release stored in config.
  *

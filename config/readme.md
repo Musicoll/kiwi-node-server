@@ -14,7 +14,7 @@ Ex:
 	"db_url": "mongodb://localhost/KiwiAPI-dev",
 
 	// private key to encode user token
-	"private_key": "kiwisupersecretprivatekey007-dev",
+	"private_key": "secretkey",
 
 	// mail sender info
 	"mail_service":
@@ -36,7 +36,7 @@ Ex:
 	"open_token": "youropentoken"
 
 	// the compatible version of kiwi.
-	"kiwi_version": "v0.1.0"
+	"kiwi_version": "v1.0.0"
 }
 
 ```
