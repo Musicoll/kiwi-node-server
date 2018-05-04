@@ -9,9 +9,9 @@ let request = require('supertest');
 let server = require('../app');
 let app = server.app;
 
-test('GET /api/release', t => {
+test('GET /api/releass', t => {
 
-  request(app).get('/api/release')
+  request(app).get('/api/releases')
   .accept('application/json')
   .expect(200)
   .type('application/json')
