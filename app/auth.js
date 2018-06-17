@@ -61,11 +61,11 @@ passport.use(new JwtStrategy(jwtStrategyParams, function(jwt_payload, done) {
     .select('_id + blacklisted')
     .then(user => {
 
-        if (user.blacklisted == false){
+        if (user && user.blacklisted == false){
             return done(null, {_id: user._id})
         }
         else {
-            return done(null, null, new Error("User is blacklisted"));
+            return done(null, false, new Error("User is blacklisted"));
         }
     })
     .catch(err => {
