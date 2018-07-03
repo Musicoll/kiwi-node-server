@@ -15,57 +15,57 @@ Node.js Web Server and API for [Kiwi](https://github.com/Musicoll/Kiwi).
 ## Install the server
 
 - Install Node.js
-```
-brew install node
-```
-[Further information and other platforms](https://nodejs.org/en/download/current/)
+  ```
+  brew install node
+  ```
+  [Further information and other platforms](https://nodejs.org/en/download/current/)
 
 - Install MongoDB
-```
-brew update
-brew install mongodb
-mkdir -p /data/db
-```
-[Further information](https://docs.mongodb.com/manual/tutorial/install-mongodb-on-os-x)  
+  ```
+  brew update
+  brew install mongodb
+  mkdir -p /data/db
+  ```
+  [Further information](https://docs.mongodb.com/manual/tutorial/install-mongodb-on-os-x)  
 
 - Install node package dependencies
-```
-npm install
-```
+  ```
+  npm install
+  ```
 
 - Clone the repository
-```
-git clone https://github.com/Musicoll/kiwi-node-server.git
-```
+  ```
+  git clone https://github.com/Musicoll/kiwi-node-server.git
+  ```
 
 - Create a JSON configuration file *prod.json*
-```js
-{
-	// listening port
-	"port": 8080,
-	// database
-	"db_url": "mongodb://localhost/KiwiAPI-dev",
-	// private key to encode user token
-	"private_key": "secretkey",
-	// mail sender info
-	"mail_service":
-	{
-		"service": "Gmail",
-		"auth": {
-				"user": "youremailaddress@email.com",
-				"pass": "emailpassword"
-		}
-	},
-	// flip binary port
-	"session_port": 9090,
-	// session server backend directory
-	"backend_directory": "../server_backend"
-	// token to verify open grant between flip and api server
-	"open_token": "youropentoken"
-	// the compatible version of kiwi.
-	"kiwi_version": "v1.0.0"
-}
-```
+  ```js
+  {
+  	// listening port
+  	"port": 8080,
+  	// database
+  	"db_url": "mongodb://localhost/KiwiAPI-dev",
+  	// private key to encode user token
+  	"private_key": "secretkey",
+  	// mail sender info
+  	"mail_service":
+  	{
+  		"service": "Gmail",
+  		"auth": {
+  				"user": "youremailaddress@email.com",
+  				"pass": "emailpassword"
+  		}
+  	},
+  	// flip binary port
+  	"session_port": 9090,
+  	// session server backend directory
+  	"backend_directory": "../server_backend"
+  	// token to verify open grant between flip and api server
+  	"open_token": "youropentoken"
+  	// the compatible version of kiwi.
+  	"kiwi_version": "v1.0.0"
+  }
+  ```
 
 - Organize the server   
 
@@ -85,11 +85,11 @@ git clone https://github.com/Musicoll/kiwi-node-server.git
 ## Run the server
 
 - Launch MongoDB
-```
-sudo killall -15 mongod (mac if necessary)
-sudo mongod (mac)
-sudo service mongodb start (linux)
-```
+  ```
+  sudo killall -15 mongod (mac if necessary)
+  sudo mongod (mac)
+  sudo service mongodb start (linux)
+  ```
 
 - Launch the Server
 
