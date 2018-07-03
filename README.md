@@ -28,14 +28,12 @@ Node.js Web Server and API for [Kiwi](https://github.com/Musicoll/Kiwi).
   ```
   [Further information](https://docs.mongodb.com/manual/tutorial/install-mongodb-on-os-x)  
 
-- Install node package dependencies
-  ```
-  npm install
-  ```
 
-- Clone the repository
+- Clone the repository and install node package dependencies
   ```
   git clone https://github.com/Musicoll/kiwi-node-server.git
+  cd kiwi-node-server
+  npm install
   ```
 
 - Create a JSON configuration file *prod.json*
@@ -90,6 +88,11 @@ Node.js Web Server and API for [Kiwi](https://github.com/Musicoll/Kiwi).
   sudo mongod (mac)
   sudo service mongodb start (linux)
   ```
+- Launch Flip server
+  ```
+  cd Server
+  ./Server -f ../config/prod.json
+  ```
 
 - Launch the Server
 
@@ -105,12 +108,12 @@ Node.js Web Server and API for [Kiwi](https://github.com/Musicoll/Kiwi).
   NODE_CONFIG_DIR=../config NODE_ENV=prod node server.js
   ```
 
-- Unit-tests
+- Unit-tests (optional)
   ```
   npm test
   ```
 
-- Unit-tests with coverage
+- Unit-tests with coverage (optional)
   ```
   npm run test-cov
   ```
