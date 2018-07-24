@@ -2,112 +2,142 @@
 [![Build Status](https://travis-ci.org/Musicoll/kiwi-node-server.svg?branch=master)](https://travis-ci.org/Musicoll/kiwi-node-server)
 [![Dependency Status](https://david-dm.org/Musicoll/kiwi-node-server.svg)](https://david-dm.org/Musicoll/kiwi-node-server)
 [![devDependencies Status](https://david-dm.org/Musicoll/kiwi-node-server/dev-status.svg)](https://david-dm.org/Musicoll/kiwi-node-server?type=dev)
-[![Documentation](https://img.shields.io/badge/KiwiAPI-documentation-blue.svg)](http://musicoll.github.io/kiwi-node-server/)
+[![Documentation](https://img.shields.io/badge/KiwiAPI-documentation-blue.svg)](https://musicoll.github.io/kiwi-node-server/)
 
 Node.js Web Server and API for [Kiwi](https://github.com/Musicoll/Kiwi).
 
-## Requirements
-
-To use this repository you'll need to have these dependencies installed :
+## Dependencies
 
  - [Node.js](https://nodejs.org/en/)
  - [MongoDB](https://www.mongodb.com)
  - [npm](https://www.npmjs.com/)
 
-## Installation
+## Install the server
 
-clone this repository then:
+- Install Node.js
+  ```
+  brew install node
+  ```
+  [Further information and other platforms](https://nodejs.org/en/download/current/)
 
-install node package dependencies using
+- Install MongoDB
+  ```
+  brew update
+  brew install mongodb
+  mkdir -p /data/db
+  ```
+  [Further information](https://docs.mongodb.com/manual/tutorial/install-mongodb-on-os-x)  
 
-```shell
-$ npm install
-```
 
-then start the mongo database by typing in another console process
-```shell
-$ sudo mongod
+- Clone the repository and install node package dependencies
+  ```
+  git clone https://github.com/Musicoll/kiwi-node-server.git
+  cd kiwi-node-server
+  npm install
+  ```
 
-# (linux):
-$ sudo service mongodb start
-```
+- Create a JSON configuration file *prod.json*
+  ```js
+  {
+  	// listening port
+  	"port": 8080,
+  	// database
+  	"db_url": "mongodb://localhost/KiwiAPI-dev",
+  	// private key to encode user token
+  	"private_key": "secretkey",
+  	// mail sender info
+  	"mail_service":
+  	{
+  		"service": "Gmail",
+  		"auth": {
+  				"user": "youremailaddress@email.com",
+  				"pass": "emailpassword"
+  		}
+  	},
+  	// flip binary port
+  	"session_port": 9090,
+  	// session server backend directory
+  	"backend_directory": "../server_backend"
+  	// token to verify open grant between flip and api server
+  	"open_token": "youropentoken"
+  	// the compatible version of kiwi.
+  	"kiwi_version": "v1.0.0"
+  }
+  ```
 
-## Run server
+- Organize the server   
 
-Kiwi Api server uses a configuration file written in json format specifying all needed information for the server to run properly.  Before running the server create your own configuration file. Example can be found under /config folder of the repository. A configuration file shall contain the following informations:
+  The backend directory must have the same relative path to the file *prod.json* as to the [Server application](https://github.com/Musicoll/Kiwi/releases) compiled with the main [Kiwi](https://github.com/Musicoll/Kiwi) repository. Here an example where the backend directory relative path is defined as previously "../server_backend".
+  ```
+  MainDir/
+      config/
+          prod.json
+      kiwi-node-server/
+          ...
+      Server/
+          Server (the Server application)
+      server_backend/
+          ...
+    ```
 
-Ex:
+## Run the server
 
-```js
-{
-	// listening port
-	"port": 8080,
+- Launch MongoDB
+  ```
+  sudo killall -15 mongod (mac if necessary)
+  sudo mongod (mac)
+  sudo service mongodb start (linux)
+  ```
+- Launch Flip server
+  ```
+  cd Server
+  ./Server -f ../config/prod.json
+  ```
 
-	// database
-	"db_url": "mongodb://localhost/KiwiAPI-dev",
+- Launch the Server
 
-	// private key to encode user token
-	"private_key": "secretkey",
+  Using the default path and environment:
+  ```
+  cd kiwi-node-server
+  npm start
+  ```
 
-	// mail sender info
-	"mail_service":
-	{
-		"service": "Gmail",
-		"auth": {
-				"user": "youremailaddress@email.com",
-				"pass": "emailpassword"
-		}
-	},
+  or manually with **NODE_CONFIG_DIR** the relative to the file *prod.json* and **NODE_ENV** the environment :
+  ```
+  cd kiwi-node-server
+  NODE_CONFIG_DIR=../config NODE_ENV=prod node server.js
+  ```
 
-	// flip binary port
-	"session_port": 9090,
+- Unit-tests (optional)
+  ```
+  npm test
+  ```
 
-	// session server backend directory
-	"backend_directory": "server_backend"
+- Unit-tests with coverage (optional)
+  ```
+  npm run test-cov
+  ```
+  The results will be located in *./coverage/lcov-report/index.html*.
 
-	// token to verify open grant between flip and api server
-	"open_token": "youropentoken"
 
-	// the compatible version of kiwi.
-	"kiwi_version": "v1.0.0"
-}
+## Connect to the server
 
-```
-
-Once you have created it you can then (ex: config.json) refer to this config file and launch the server by executing following lines in a terminal.
-
-Ex: if config file is /Dir/config.json
-
-```shell
-$ NODE_CONFIG_DIR=/Dir NODE_ENV=config node server.js
-```
-
-## Api Documentation
-
-You can find the API documentation [here](https://musicoll.github.io/kiwi-node-server/). All endpoints are described and example are given on how to call them.
-
-## Tests
-
-Run the unit-tests by typing:
-```shell
-$ npm test
-```
-
-Or the unit-tests with coverage by typing:
-```shell
-$ npm run test-cov
-```
-
-Open `./coverage/lcov-report/index.html` to see coverage infos.
+- Open Kiwi
+- Open the preferences
+- Change the host (localhost), API port (8080) and session port (9090)
+- Create a new account if required
 
 ## Generate documentation
 
-The documentation of the Kiwi API can be regenerated using [apidoc](http://apidocjs.com/).  
-Install apidoc globally using: `npm install apidoc -g`, then type:
+- Install [apidoc](http://apidocjs.com/):
+  ```
+   npm install apidoc -g
+  ```
 
-```shell
-$ npm run documentation
-```
+- Generate the documentation
+  ```
+  npm run documentation
+  ```
 
-it will generate the documentation in ./docs.  
-Open ./docs/index.html to see the documentation.
+  it will generate the documentation in *./docs*.  
+  Open *./docs/index.html* to see the documentation.
