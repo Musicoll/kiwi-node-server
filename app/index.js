@@ -6,6 +6,8 @@ const config = require('config');
 const db = require('./db');
 const path = require('path');
 const favicon = require('serve-favicon')
+const https = require('https')
+const fs = require('fs')
 
 // Create the Express application.
 let app = express();
@@ -37,7 +39,15 @@ connectDataBase = (done) => {
 
 // Start server (only if this file has been called directly)
 startServer = (done) => {
-  return app.listen(config.port, function () {
+
+  var appDir = path.dirname(require.main.filename);
+
+  var options = {
+    key: fs.readFileSync(path.join(appDir, config.ssl_key)),
+    cert: fs.readFileSync(path.join(appDir, config.ssl_certificate))
+  };
+
+  return https.createServer(options, app).listen(config.port, function () {
     console.log('Kiwi server listening on port : ' + config.port)
     typeof done === 'function' && done()
   })
