@@ -20,7 +20,7 @@ router.get("/verify", (req, res) => {
     return;
   }
 
-  TempUser.findOne({ _id: req.query.tempuserid }, function(err, tempuser) {
+  TempUser.findOne({ _id: req.query.tempuserid }, (err, tempuser) => {
     if (!tempuser || activationToken != tempuser.activationToken) {
       data.message =
         "Activation expired. Please click on the latest link you received or register again";
