@@ -115,10 +115,7 @@ router.post('/upload', auth.authenticate(), (req, res) => {
     PatcherDocument.create(request)
       .then(patcher => {
 
-          var backend_dir = path.join(path.dirname(require.main.filename), '..',
-          config.backend_directory);
-
-          var file = path.join(backend_dir, patcher.session_id.toLowerCase() + '.kiwi');
+          let file = path.join(config.BACKEND_DIR, patcher.session_id.toLowerCase() + '.kiwi');
 
           fs.writeFile(file, req.body, function(err) {
 
@@ -192,10 +189,8 @@ router.get('/:id/download', auth.authenticate(), (req, res) => {
       .populate('lastOpenedBy', 'username email')
       .then(patcher => {
 
-          var backend_dir = path.join(path.dirname(require.main.filename), '..',
-          config.backend_directory);
-
-          var file = path.join(backend_dir, patcher.session_id.toLowerCase() + '.kiwi');
+        let backend_dir = config.BACKEND_DIR
+        let file = path.join(backend_dir, patcher.session_id.toLowerCase() + '.kiwi');
 
           if (fs.existsSync(file) == false)
           {
@@ -249,9 +244,7 @@ router.post('/:id/clone', auth.authenticate(), (req, res) => {
         PatcherDocument.create(request)
         .then(patcher_dst => {
 
-            var backend_dir = path.join(path.dirname(require.main.filename), '..',
-            config.backend_directory);
-
+            let backend_dir = config.BACKEND_DIR
             var src_file = path.join(backend_dir, patcher_src.session_id.toLowerCase() + '.kiwi');
 
             if (fs.existsSync(src_file) == false)

@@ -70,9 +70,9 @@ export default {
 
             const download_url_base = "https://github.com/Musicoll/Kiwi/releases/download/" + release_tag + "/";
 
-            $("#download-mac").attr("href", download_url_base + "Kiwi_macos.zip");
-            $("#download-win64").attr("href", download_url_base + "Kiwi_x64.zip");
-            $("#download-linux").attr("href", download_url_base + "Kiwi_linux.tar.gz");
+            $("#download-mac").attr("href", download_url_base + "Kiwi-macos-x64.zip");
+            $("#download-win64").attr("href", download_url_base + "Kiwi-windows-x64.zip");
+            $("#download-linux").attr("href", download_url_base + "Kiwi-linux-x64.zip");
 
             // show release block
             $("#latest-release #platforms").fadeIn("slow");
