@@ -7,9 +7,16 @@
 
       <div class="ui text container">
         <h1 class="ui inverted header">
-          KIWI
+          {{title}}
         </h1>
-        <h2>{{mess}}</h2>
+
+        <div class="ui message" v-bind:class="{ 'success': !error, 'negative': error }">
+          <div class="header">
+            <p v-if="error">Activation failed !</p>
+            <p v-else>Activation success !</p>
+          </div>
+          <p>{{message}}</p>
+        </div>
       </div>
 
     </div>
@@ -17,15 +24,16 @@
 </template>
 
 <script>
+import mainMenu from "./components/mainMenu.vue";
 export default {
-    data: function() {
-        return {
-            mess: '<%= mess %>'
-        }
-    }
-}
+  data: function() {
+    return {};
+  },
+  components: {
+    mainMenu
+  }
+};
 </script>
-
 
 <style lang="css">
 </style>

@@ -9,7 +9,7 @@
         <h1 class="ui inverted header">
           KIWI
         </h1>
-        <h2>Page not found !</h2>
+        <h2>{{title}}</h2>
         <a class="ui large button" href="/">Go back to the home page...</a>
       </div>
 
@@ -18,9 +18,13 @@
 </template>
 
 <script>
+import mainMenu from './components/mainMenu.vue';
 export default {
     data: function() {
         return {}
+    },
+    components: {
+        mainMenu,
     }
 }
 </script>
