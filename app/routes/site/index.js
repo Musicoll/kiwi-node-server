@@ -3,9 +3,15 @@ const TempUser = require("../../models/User").TempUser;
 const User = require("../../models/User").User;
 
 // GET the user validation page
-router.get("/verify", (req, res) => {
+router.get("/verify", function(req, res) {
   const tempuserid = req.query.tempuserid;
   const activationToken = req.query.token;
+
+  if (!tempuserid || !activationToken) {
+    data.message = "Id or Token not specified";
+    res.status(400).renderVue(vue, data, req.vueOptions);
+    return;
+  }
 
   const vue = "simpleMessage.vue";
   let data = {
@@ -14,13 +20,7 @@ router.get("/verify", (req, res) => {
     message: "Error"
   };
 
-  if (!tempuserid || !activationToken) {
-    data.message = "Id or Token not specified";
-    res.status(400).renderVue(vue, data, req.vueOptions);
-    return;
-  }
-
-  TempUser.findOne({ _id: req.query.tempuserid }, (err, tempuser) => {
+  TempUser.findOne({ _id: req.query.tempuserid }, function(err, tempuser) {
     if (!tempuser || activationToken != tempuser.activationToken) {
       data.message =
         "Activation expired. Please click on the latest link you received or register again";
@@ -29,24 +29,33 @@ router.get("/verify", (req, res) => {
       data.message = "Error";
       res.status(500).renderVue(vue, data, req.vueOptions);
     } else {
-      let newUser = new User({
-        username: tempuser.username,
-        email: tempuser.email,
-        password: tempuser.password
-      });
-
-      newUser.save((err, user) => {
-        if (err || !user) {
-          data.message = "Error";
-          res.status(500).renderVue(vue, data, req.vueOptions);
-        } else {
-          data.error = false;
-          data.message = "Your account has been confirmed.";
-          res.renderVue(vue, data, req.vueOptions);
+      User.create(
+        {
+          username: tempuser.username,
+          email: tempuser.email,
+          password: tempuser.password
+        },
+        (err, user) => {
+          if (err || !user) {
+            data.message = "Error";
+            res.status(500).renderVue(vue, data, req.vueOptions);
+          } else {
+            user.save(function(err, user) {
+              if (err || !user) {
+                data.message = "Error";
+                res.status(500).renderVue(vue, data, req.vueOptions);
+              } else {
+                data.error = false;
+                data.message = "Your account has been confirmed.";
+                res.renderVue(vue, data, req.vueOptions);
+                return;
+              }
+            });
+          }
         }
-      });
+      );
 
-      TempUser.remove({ _id: tempuser._id }, function(err) {});
+      TempUser.deleteOne({ _id: tempuser._id }, function(err) {});
     }
   });
 });
