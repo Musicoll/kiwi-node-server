@@ -1,14 +1,14 @@
-const router = require('express').Router();
-const utils = require('./utils');
+const router = require("express").Router();
+const utils = require("./utils");
 
 const api_paths = {
-  auth_url:       "/auth",
-  users_url:      "/users",
-  user_url :      "/users/:id",
-  documents_url:  "/documents",
-  document_url:   "/documents/:id",
-  releases_url:   "/releases"
-}
+  auth_url: "/auth",
+  users_url: "/users",
+  user_url: "/users/:id",
+  documents_url: "/documents",
+  document_url: "/documents/:id",
+  releases_url: "/releases"
+};
 
 /**
  * @api {get} / Request API Paths
@@ -33,27 +33,24 @@ const api_paths = {
  *        "releases_url":   "/releases"
  *     }
  */
-router.get('/', (req, res, next) => {
+router.get("/", (req, res, next) => {
   res.json(api_paths);
 });
 
 // Authentication endpoint
-router.post('/login', require('./auth').login);
+router.post("/login", require("./auth").login);
 
 // documents endpoints
-router.use('/documents', require('./documents'));
+router.use("/documents", require("./documents"));
 
 // users endpoints
-router.use('/users', require('./users'));
-
-// drive endpoints
-// router.use('/drive', require('./drive'));
+router.use("/users", require("./users"));
 
 // releases endpoint
-router.use('/releases', require('./releases'));
+router.use("/releases", require("./releases"));
 
 // Send an invalid api path error message for all other routes
-router.all('/*', (req, res, next) => {
+router.all("/*", (req, res, next) => {
   utils.sendJsonError(res, "Invalid api path !", 404);
 });
 
