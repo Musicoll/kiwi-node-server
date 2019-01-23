@@ -2,15 +2,13 @@
 // Document Model
 // ------------------------------------------------------------------------- //
 
-const mongoose = require('mongoose');
-const shortId = require('mongoose-shortid-nodeps');
+const mongoose = require("mongoose");
+const generate_nanoid = require("nanoid/generate");
 
 const PatcherDocumentSchema = new mongoose.Schema({
-
   session_id: {
-    type: shortId,
-    len: 16,
-    base: 16,
+    type: String,
+    default: () => generate_nanoid("0123456789ABCDEF", 16),
     unique: true
   },
 
@@ -25,62 +23,58 @@ const PatcherDocumentSchema = new mongoose.Schema({
   },
 
   createdBy: {
-      type: shortId,
-      ref: 'User',
-      required: true
+    type: String,
+    ref: "User",
+    required: true
   },
 
   trashed: {
-      type: Boolean,
-      required: true,
-      default: false
+    type: Boolean,
+    required: true,
+    default: false
   },
 
   trashedDate: {
-      type: Date,
-      required: false
+    type: Date,
+    required: false
   },
 
   trashedBy: {
-      type: shortId,
-      ref: 'User',
+    type: String,
+    ref: "User"
   },
 
   lastOpenedAt: {
-      type: Date,
-      default: Date.now,
-      required: true
+    type: Date,
+    default: Date.now,
+    required: true
   },
 
   lastOpenedBy: {
-      type: shortId,
-      ref: 'User',
-      required: true
+    type: String,
+    ref: "User",
+    required: true
   }
-
 });
 
 /**
  * Patcher document validator
  */
- PatcherDocumentSchema.pre('save', function(next) {
+PatcherDocumentSchema.pre("save", function(next) {
+  let doc = this;
 
-   let doc = this;
+  // reset name to 'Untitled' if is unset or blank.
+  if (!("name" in doc) || !doc.name) {
+    doc.name = "Untitled";
+  }
 
-   // reset name to 'Untitled' if is unset or blank.
-   if( !('name' in doc) || !doc.name) {
-      doc.name = 'Untitled';
-   }
-
-   next();
-
+  next();
 });
 
 /**
  * Called before an update of the Document
  */
 function preUpdate(next) {
-
   let query = this;
   let update = query.getUpdate();
 
@@ -89,33 +83,32 @@ function preUpdate(next) {
   }
 
   // reset name to 'Untitled' if is unset or blank.
-  if( 'name' in update && update.name == "") {
-     update.name = 'Untitled';
+  if ("name" in update && update.name == "") {
+    update.name = "Untitled";
   }
 
-  if ('trashed' in update){
-      if (update.trashed == true){
-          if (!update.trashedBy || !update.trashedDate){
-              let err = new Error('Document can\'t update trashed field')
-              err.code = 'Trash'
-              next(err)
-          }
+  if ("trashed" in update) {
+    if (update.trashed == true) {
+      if (!update.trashedBy || !update.trashedDate) {
+        let err = new Error("Document can't update trashed field");
+        err.code = "Trash";
+        next(err);
       }
-      else{
-          query.getUpdate().$unset = {trashedBy: "", trashedDate: ""};
-      }
+    } else {
+      query.getUpdate().$unset = { trashedBy: "", trashedDate: "" };
+    }
   }
 
-  if ( 'createdBy' in update) {
-      let err = new Error('Document Can\'t update createdBy field')
-      err.code = 'CreatedBy'
-      next(err);
+  if ("createdBy" in update) {
+    let err = new Error("Document Can't update createdBy field");
+    err.code = "CreatedBy";
+    next(err);
   }
 
   next();
 }
 
-PatcherDocumentSchema.pre('update', preUpdate);
-PatcherDocumentSchema.pre('findOneAndUpdate', preUpdate);
+PatcherDocumentSchema.pre("update", preUpdate);
+PatcherDocumentSchema.pre("findOneAndUpdate", preUpdate);
 
-module.exports = mongoose.model('PatcherDocument', PatcherDocumentSchema);
+module.exports = mongoose.model("PatcherDocument", PatcherDocumentSchema);

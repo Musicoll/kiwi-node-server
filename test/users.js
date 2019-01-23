@@ -1,365 +1,381 @@
 //During the test the env variable is set to test
-process.env.NODE_ENV = 'test';
+process.env.NODE_ENV = "test";
 
-const test = require('tape');
-let request = require('supertest');
+const test = require("tape");
+let request = require("supertest");
 
-const helper = require('./helper');
-let server = require('../app');
+const helper = require("./helper");
+let server = require("../app");
 let app = server.app;
 
-let User = require('../app/models/User').User;
-let TempUser = require('../app/models/User').TempUser
-const PRIVATE_KEY = require('config').private_key
-const jwt = require('jsonwebtoken');
+let User = require("../app/models/User").User;
+let TempUser = require("../app/models/User").TempUser;
+const PRIVATE_KEY = require("config").private_key;
+const jwt = require("jsonwebtoken");
 
-test('GET /api/users', t => {
-
+test("GET /api/users", t => {
   helper.clearDatabase();
 
-  request(app).get('/api/users')
-  .set('Accept', 'application/json')
-  .expect(200)
-  .expect('Content-Type', /json/)
-  .end((err, res) => {
-    t.ok(res.body instanceof Object, '/api/users endpoint ok');
-    t.end(err);
-  });
-
-});
-
-test('POST /api/users with no info provided should fail', t => {
-
-  helper.clearDatabase();
-
-  request(app).post('/api/users')
-  .set('Accept', 'application/json')
-  .send({})
-  .expect(400)
-  .expect('Content-Type', /json/)
-  .end((err, res) => {
-    t.error(err, 'request failed')
-    t.ok(res.body.error === true, 'response has an error')
-    t.end()
-  });
-
-});
-
-test('Create a new user with only email provided should fail', t => {
-
-  helper.clearDatabase();
-
-  request(app).post('/api/users')
-  .set('Accept', 'application/json')
-  .send({email: helper.userTest.email})
-  .expect(400)
-  .expect('Content-Type', /json/)
-  .end((err, res) => {
-    t.error(err, 'request failed')
-    t.ok(res.body.error === true, 'response has an error')
-    t.end()
-  });
-
-});
-
-test('Account activation standard scenario', t => {
-
-    helper.clearDatabase();
-
-    request(app).post('/api/users')
-    .set('Accept', 'application/json')
-    .send(helper.userTest)
-    .expect('Content-Type', /json/)
+  request(app)
+    .get("/api/users")
+    .set("Accept", "application/json")
+    .expect(200)
+    .expect("Content-Type", /json/)
     .end((err, res) => {
+      t.ok(res.body instanceof Object, "/api/users endpoint ok");
+      t.end(err);
+    });
+});
 
-        t.error(err, 'user has been created')
+test("POST /api/users with no info provided should fail", t => {
+  helper.clearDatabase();
 
-        TempUser.findOne({email: helper.userTest.email}, function(err, user) {
+  request(app)
+    .post("/api/users")
+    .set("Accept", "application/json")
+    .send({})
+    .expect(400)
+    .expect("Content-Type", /json/)
+    .end((err, res) => {
+      t.error(err, "request failed");
+      t.ok(res.body.error === true, "response has an error");
+      t.end();
+    });
+});
 
-            t.ok(user && !err, "good registration creates temp user");
+test("Create a new user with only email provided should fail", t => {
+  helper.clearDatabase();
 
-            // Request with bad activation token should fail.
-            let wrong_root = "/verify?tempuserid=" + user._id + "&token=" + user.activationToken + "34";
+  request(app)
+    .post("/api/users")
+    .set("Accept", "application/json")
+    .send({ email: helper.userTest.email })
+    .expect(400)
+    .expect("Content-Type", /json/)
+    .end((err, res) => {
+      t.error(err, "request failed");
+      t.ok(res.body.error === true, "response has an error");
+      t.end();
+    });
+});
 
-            request(app).get(wrong_root)
-            .set('Accept', 'application/json')
-            .expect(410)
-            .expect('Content-Type', "text/html; charset=utf-8")
-            .end((err, res) => {
-            });
+test("Account activation standard scenario", t => {
+  helper.clearDatabase();
 
-            // Request with good activation token.
-            let root = "/verify?tempuserid=" + user._id + "&token=" + user.activationToken;
+  request(app)
+    .post("/api/users")
+    .set("Accept", "application/json")
+    .send(helper.userTest)
+    .expect("Content-Type", /json/)
+    .end((err, res) => {
+      t.error(err, "user has been created");
 
-            request(app).get(root)
-            .set('Accept', 'application/json')
-            .expect(200)
-            .expect('Content-Type', "text/html; charset=utf-8")
-            .end((err, res) => {
-                t.error(err, 'activation succeeds');
+      TempUser.findOne({ email: helper.userTest.email }, function(err, user) {
+        t.ok(user && !err, "good registration creates temp user");
 
-                // Activate twice should fail.
-                request(app).get(root)
-                .set('Accept', 'application/json')
+        // Request with bad activation token should fail.
+        let wrong_root =
+          "/verify?tempuserid=" +
+          user._id +
+          "&token=" +
+          user.activationToken +
+          "34";
+
+        request(app)
+          .get(wrong_root)
+          .set("Accept", "application/json")
+          .expect(200)
+          .expect("Content-Type", "text/html; charset=utf-8")
+          .end((err, res) => {
+            t.ok(err, "Request with bad activation token should fail");
+          });
+
+        // Request with good activation token.
+        let root =
+          "/verify?tempuserid=" + user._id + "&token=" + user.activationToken;
+
+        request(app)
+          .get(root)
+          .set("Accept", "application/json")
+          .expect(200)
+          .expect("Content-Type", "text/html; charset=utf-8")
+          .end((err, res) => {
+            t.error(err, "Request with valid activation token should success");
+
+            // Activate twice should fail.
+            request(app)
+              .get(root)
+              .set("Accept", "application/json")
+              .expect(410)
+              .expect("Content-Type", "text/html; charset=utf-8")
+              .end((err, res) => {
+                t.error(err, "Activate twice should fail");
+                t.end();
+              });
+          });
+      });
+    });
+});
+
+test("Account activation scenario reset information before validation", t => {
+  helper.clearDatabase();
+
+  request(app)
+    .post("/api/users")
+    .set("Accept", "application/json")
+    .send(helper.userTest)
+    .expect("Content-Type", /json/)
+    .end((err, res) => {
+      TempUser.findOne({ email: helper.userTest.email }, function(err, user) {
+        t.ok(user && !err, "good registration creates temp user");
+
+        let old_root =
+          "/verify?tempuserid=" + user._id + "&token=" + user.activationToken;
+
+        let userTestModified = helper.userTest;
+        userTestModified.username = "johndoe2";
+
+        // Reset temporary user.
+        request(app)
+          .post("/api/users")
+          .set("Accept", "application/json")
+          .send(userTestModified)
+          .expect("Content-Type", /json/)
+          .end((err, res) => {
+            TempUser.findOne({ username: userTestModified.username }, function(
+              err,
+              user2
+            ) {
+              t.ok(user2 && !err, "register again updates temporary user");
+
+              let new_root =
+                "/verify?tempuserid=" +
+                user2._id +
+                "&token=" +
+                user2.activationToken;
+
+              // Old user token early expired.
+              request(app)
+                .get(old_root)
+                .set("Accept", "application/json")
                 .expect(410)
-                .expect('Content-Type', "text/html; charset=utf-8")
+                .expect("Content-Type", "text/html; charset=utf-8")
+                .end((err, res) => {});
+
+              // New user token valid.
+              request(app)
+                .get(new_root)
+                .set("Accept", "application/json")
+                .expect(200)
+                .expect("Content-Type", "text/html; charset=utf-8")
                 .end((err, res) => {
-                    t.end();
+                  t.end();
                 });
-
             });
-        });
+          });
+      });
     });
 });
 
-test('Account activation scenario reset information before validation', t => {
-
-    helper.clearDatabase();
-
-    request(app).post('/api/users')
-    .set('Accept', 'application/json')
-    .send(helper.userTest)
-    .expect('Content-Type', /json/)
-    .end((err, res) => {
-
-        TempUser.findOne({email: helper.userTest.email}, function(err, user) {
-
-            t.ok(user && !err, "good registration creates temp user");
-
-            let old_root = "/verify?tempuserid=" + user._id + "&token=" + user.activationToken;
-
-            let userTestModified = helper.userTest;
-            userTestModified.username = 'johndoe2'
-
-            // Reset temporary user.
-            request(app).post('/api/users')
-            .set('Accept', 'application/json')
-            .send(userTestModified)
-            .expect('Content-Type', /json/)
-            .end((err, res) => {
-                TempUser.findOne({username: userTestModified.username}, function(err, user2) {
-
-                    t.ok(user2 && !err, "register again updates temporary user");
-
-                    let new_root = "/verify?tempuserid=" + user2._id + "&token=" + user2.activationToken;
-
-                    // Old user token early expired.
-                    request(app).get(old_root)
-                    .set('Accept', 'application/json')
-                    .expect(410)
-                    .expect('Content-Type', "text/html; charset=utf-8")
-                    .end((err, res) => {
-                    });
-
-                    // New user token valid.
-                    request(app).get(new_root)
-                    .set('Accept', 'application/json')
-                    .expect(200)
-                    .expect('Content-Type', "text/html; charset=utf-8")
-                    .end((err, res) => {
-                        t.end()
-                    });
-                })
-            });
-        });
-    });
-});
-
-test('Reset password scenario', t => {
-
+test("Reset password scenario", t => {
   helper.clearDatabase();
 
   helper.createUser(helper.userTest, function(user) {
+    let signed_token = jwt.sign({ userid: user._id }, PRIVATE_KEY, {
+      expiresIn: "24h"
+    });
 
-      let signed_token = jwt.sign({userid: user._id}, PRIVATE_KEY, {
-          expiresIn: '24h'
-      });
-
-      request(app).post('/api/users/passreset')
-      .set('Accept', 'application/json')
-      .send({newpass: "password_2", token: signed_token})
+    request(app)
+      .post("/api/users/passreset")
+      .set("Accept", "application/json")
+      .send({ newpass: "password_2", token: signed_token })
       .expect(200)
-      .expect('Content-Type', /json/)
+      .expect("Content-Type", /json/)
       .end((err, res) => {
-          t.error(err, "reseting password with valid token should succeed");
-          t.end()
+        t.error(err, "reseting password with valid token should succeed");
+        t.end();
       });
   });
-})
+});
 
-test('Password must be hashed in database when creating a new user', t => {
-
+test("Password must be hashed in database when creating a new user", t => {
   helper.clearDatabase();
 
   helper.createUser(helper.userTest, function(user) {
+    const user_id = user._id;
 
-      const user_id = user._id
-
-      User.findById(user_id)
-      .select('+password')
+    User.findById(user_id)
+      .select("+password")
       .then(user => {
-
         // test valid then invalid password:
-        user.comparePassword(helper.userTest.password)
-        .then(is_valid => {
-          t.ok(is_valid, 'Comparing raw password with the hashed one must be equal')
-        })
-        .then(() => {
-          user.comparePassword(helper.userTest.password + 'bad_pwd')
+        user
+          .comparePassword(helper.userTest.password)
           .then(is_valid => {
-            t.ok(!is_valid, 'Comparing bad raw password with the hashed one must NOT be equal')
-            t.end()
+            t.ok(
+              is_valid,
+              "Comparing raw password with the hashed one must be equal"
+            );
           })
-        })
+          .then(() => {
+            user
+              .comparePassword(helper.userTest.password + "bad_pwd")
+              .then(is_valid => {
+                t.ok(
+                  !is_valid,
+                  "Comparing bad raw password with the hashed one must NOT be equal"
+                );
+                t.end();
+              });
+          });
       })
       .catch(error => {
-        t.end(error)
-      })
+        t.end(error);
+      });
   });
 });
 
-test('GET /api/users/:id with an invalid ID should fail', t => {
-
+test("GET /api/users/:id with an invalid ID should fail", t => {
   helper.clearDatabase();
 
-  request(app).get('/api/users/' + '007')
-  .set('Accept', 'application/json')
-  .expect(404)
-  .expect('Content-Type', /json/)
-  .end((err, res) => {
-    t.ok(res.body.error === true, '007 is not a valid user id');
-    t.end(err)
-  });
-
+  request(app)
+    .get("/api/users/" + "007")
+    .set("Accept", "application/json")
+    .expect(404)
+    .expect("Content-Type", /json/)
+    .end((err, res) => {
+      t.ok(res.body.error === true, "007 is not a valid user id");
+      t.end(err);
+    });
 });
 
-test('GET /api/users/:id', t => {
-
+test("GET /api/users/:id", t => {
   helper.clearDatabase();
 
-  helper.createUser(helper.userTest, function(newuser){
-
-      request(app).get('/api/users/' + newuser._id)
-      .set('Accept', 'application/json')
+  helper.createUser(helper.userTest, function(newuser) {
+    request(app)
+      .get("/api/users/" + newuser._id)
+      .set("Accept", "application/json")
       .expect(200)
-      .expect('Content-Type', /json/)
+      .expect("Content-Type", /json/)
       .end((error, response) => {
-
-        t.error(error, 'user infos can be retrieved with an ID')
+        t.error(error, "user infos can be retrieved with an ID");
 
         let user = response.body;
 
-        t.ok('email' in user, "User has an 'email' property");
-        t.ok('_id' in user, "User has an '_id' property");
-        t.same(newuser._id, user._id, 'User ID match user creation ID')
-        t.notOk('password' in user, "Password field is NOT returned");
+        t.ok("email" in user, "User has an 'email' property");
+        t.ok("_id" in user, "User has an '_id' property");
+        t.same(newuser._id, user._id, "User ID match user creation ID");
+        t.notOk("password" in user, "Password field is NOT returned");
 
-        t.end()
+        t.end();
       });
   });
 });
 
-test('GET /api/users/private should fail if token is not provided', t => {
-
+test("GET /api/users/private should fail if token is not provided", t => {
   helper.clearDatabase();
 
-  request(app).get('/api/users/private')
-  .set('Accept', 'application/json')
-  .expect(403)
-  .expect('Content-Type', /json/)
-  .end((err, res) => {
-
-    t.error(err, 'Can NOT access to /api/users/private when no token provided')
-    t.end(err)
-  });
-
+  request(app)
+    .get("/api/users/private")
+    .set("Accept", "application/json")
+    .expect(403)
+    .expect("Content-Type", /json/)
+    .end((err, res) => {
+      t.error(
+        err,
+        "Can NOT access to /api/users/private when no token provided"
+      );
+      t.end(err);
+    });
 });
 
-test('GET /api/users/private should fail with malformed token', t => {
-
+test("GET /api/users/private should fail with malformed token", t => {
   helper.clearDatabase();
 
-  const invalid_token = '1234567890';
+  const invalid_token = "1234567890";
 
-  request(app).get('/api/users/private')
-  .set('Accept', 'application/json')
-  .set('Authorization', 'JWT ' + invalid_token)
-  .expect(403)
-  .expect('Content-Type', /json/)
-  .end((err, res) => {
-
-    t.error(err, 'Can NOT access to /api/users/private with an invalid token')
-    t.end(err)
-  });
-
+  request(app)
+    .get("/api/users/private")
+    .set("Accept", "application/json")
+    .set("Authorization", "JWT " + invalid_token)
+    .expect(403)
+    .expect("Content-Type", /json/)
+    .end((err, res) => {
+      t.error(
+        err,
+        "Can NOT access to /api/users/private with an invalid token"
+      );
+      t.end(err);
+    });
 });
 
-test('GET /api/users/private should fail if not token or token expired', t => {
+test("GET /api/users/private should fail if not token or token expired", t => {
+  helper.clearDatabase();
 
-    helper.clearDatabase();
+  helper.createUser(helper.userTest, function(newuser) {
+    const user_id = newuser._id;
 
-    helper.createUser(helper.userTest, function(newuser){
+    request(app)
+      .get("/api/users/private")
+      .set("Accept", "application/json")
+      .expect(403)
+      .expect("Content-Type", /json/)
+      .end((err3, res3) => {
+        t.ok(
+          res3.body.name == "NoAuthTokenError",
+          "Error when no auth token provided"
+        );
 
-        const user_id = newuser._id;
-
-        request(app).get('/api/users/private')
-        .set('Accept', 'application/json')
-        .expect(403)
-        .expect('Content-Type', /json/)
-        .end((err3, res3) => {
-
-          t.ok(res3.body.name == "NoAuthTokenError", "Error when no auth token provided");
-
-          helper.createExpiredToken(user_id, function(token){
-
-              request(app).get('/api/users/private')
-              .set('Accept', '/application/json')
-              .set('Authorization', 'JWT ' + token)
-              .expect(403)
-              .expect('Content-Type', /jon/)
-              .end((err, res) => {
-                  t.ok(res.body.name == "TokenExpiredError");
-                  t.end();
-              })
-          })
+        helper.createExpiredToken(user_id, function(token) {
+          request(app)
+            .get("/api/users/private")
+            .set("Accept", "/application/json")
+            .set("Authorization", "JWT " + token)
+            .expect(403)
+            .expect("Content-Type", /json/)
+            .end((err, res) => {
+              t.ok(res.body.name == "TokenExpiredError");
+              t.end();
+            });
         });
-    })
+      });
+  });
 });
 
-test('GET /api/users/private should pass if a valid token id is provided', t => {
-
+test("GET /api/users/private should pass if a valid token id is provided", t => {
   helper.clearDatabase();
 
-  helper.createUser(helper.userTest, function(newuser){
+  helper.createUser(helper.userTest, function(newuser) {
+    const user_id = newuser._id;
 
-      const user_id = newuser._id;
-
-      // get an API access token
-      request(app).post('/api/login')
-      .set('Accept', 'application/json')
+    // get an API access token
+    request(app)
+      .post("/api/login")
+      .set("Accept", "application/json")
       .send(helper.userTest)
       .expect(200)
-      .expect('Content-Type', /json/)
+      .expect("Content-Type", /json/)
       .end((err2, res2) => {
-
-        t.ok('user' in res2.body, 'has user')
+        t.ok("user" in res2.body, "has user");
         let user = res2.body.user;
-        t.ok('token' in user, 'user has token')
+        t.ok("token" in user, "user has token");
         const token = user.token;
 
-        request(app).get('/api/users/private')
-        .set('Accept', 'application/json')
-        .set('Authorization', 'JWT ' + token)
-        .expect(200)
-        .expect('Content-Type', /json/)
-        .end((err3, res3) => {
-
-          t.error(err3, 'Can NOT access to /api/users/private when no token provided')
-          t.end()
-        });
-
+        request(app)
+          .get("/api/users/private")
+          .set("Accept", "application/json")
+          .set("Authorization", "JWT " + token)
+          .expect(200)
+          .expect("Content-Type", /json/)
+          .end((err3, res3) => {
+            t.error(
+              err3,
+              "Can NOT access to /api/users/private when no token provided"
+            );
+            t.end();
+          });
       });
-  })
+  });
 });
 
 module.exports = test;
