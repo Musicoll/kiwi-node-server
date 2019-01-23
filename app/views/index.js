@@ -1,15 +1,47 @@
-let path = require('path');
+const path = require("path");
+const expressVue = require("express-vue");
 
 module.exports.setup = function(app) {
+  //ExpressVue Setup
+  const vueOptions = {
+    rootPath: path.join(__dirname, "./"),
+    template: {
+      html: {
+        start: "<!DOCTYPE html><html>",
+        end: "</html>"
+      },
+      body: {
+        start: "<body>",
+        end: "</body>"
+      },
+      template: {
+        start: '<div id="app">',
+        end: "</div>"
+      }
+    },
+    head: {
+      title: "Kiwi",
+      scripts: [
+        {
+          src:
+            "https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"
+        },
+        {
+          src:
+            "https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.9/semantic.min.js"
+        }
+      ],
+      styles: [
+        { style: "/assets/styles/app.css" },
+        {
+          style:
+            "https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.9/semantic.min.css"
+        }
+      ]
+    }
+  };
 
-  // set the view engine
-  app.set('vue', {
-    componentsDir: path.join(__dirname, './components'),
-    defaultLayout: 'layout'
-  });
-
-  app.set('views', path.join(__dirname, './'));
-  app.engine('vue', require('express-vue'));
-  app.set('view engine', 'vue');
-
-}
+  // @ts-ignore
+  const expressVueMiddleware = expressVue.init(vueOptions);
+  app.use(expressVueMiddleware);
+};
