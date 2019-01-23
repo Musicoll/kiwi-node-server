@@ -44,7 +44,6 @@
     "bluebird": "^3.4.7",
     "body-parser": "^1.18.3",
     "config": "^3.0.1",
-    "cookie-parser": "^1.4.3",
     "express": "^4.16.3",
     "express-vue": "^5.8.2",
     "jsonwebtoken": "^8.4.0",
