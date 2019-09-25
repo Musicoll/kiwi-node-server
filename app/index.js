@@ -7,6 +7,7 @@ const db = require('./db');
 const path = require('path');
 const favicon = require('serve-favicon')
 const https = require('https')
+const http = require('http')
 const fs = require('fs')
 
 // Create the Express application.
@@ -47,10 +48,16 @@ startServer = (done) => {
     cert: fs.readFileSync(path.join(appDir, config.ssl_certificate))
   };
 
-  return https.createServer(options, app).listen(config.port, function () {
+  https.createServer(options, app).listen(config.port, function () {
     console.log('Kiwi server listening on port : ' + config.port)
     typeof done === 'function' && done()
   })
+
+  http.createServer(function(req, res){
+    res.setHeader('Content-Type', 'application/json; charset=utf-8')
+    res.writeHead(301, { "Location": "https://" + req.headers['host'] + req.url });
+    res.end(JSON.stringify({"error" : true, "message" : "Kiwi's server is now secure. Only latest version of Kiwi are compatible."}));
+  }).listen(80)
 }
 
 module.exports = {
