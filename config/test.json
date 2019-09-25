@@ -1,6 +1,6 @@
 {
 	"port": 8080,
-	"secure_port": 60,
+	"secure_port": 8181,
 	"db_url": "mongodb://localhost/KiwiAPI-test",
 	"private_key": "kiwisupersecretprivatekey007-test",
 	"mail_service":
