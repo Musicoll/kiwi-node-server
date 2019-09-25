@@ -12,6 +12,8 @@ const fs = require('fs')
 
 // Create the Express application.
 let app = express();
+let server;
+let secure_server;
 
 // view setup
 require('./views').setup(app);
@@ -48,20 +50,42 @@ startServer = (done) => {
     cert: fs.readFileSync(path.join(appDir, config.ssl_certificate))
   };
 
-  https.createServer(options, app).listen(config.port, function () {
-    console.log('Kiwi server listening on port : ' + config.port)
+  server = https.createServer(options, app)
+
+  server.listen(config.secure_port, function () {
+    console.log('Kiwi server listening on port : ' + config.secure_port)
     typeof done === 'function' && done()
   })
 
-  http.createServer(function(req, res){
+  secure_server = http.createServer(function(req, res){
     res.setHeader('Content-Type', 'application/json; charset=utf-8')
     res.writeHead(301, { "Location": "https://" + req.headers['host'] + req.url });
-    res.end(JSON.stringify({"error" : true, "message" : "Kiwi's server is now secure. Only latest version of Kiwi are compatible."}));
-  }).listen(80)
+    res.end(JSON.stringify({"error" : true, "message" : "Kiwi's server is now secure. Please download latest version and reset network settings."}));
+  });
+
+  secure_server.listen(config.port, function () {
+    console.log('Kiwi redirection server listening on port : ' + config.port)
+  })
+}
+
+closeServer = (done) => {
+
+  if (server)
+  {
+    server.close();
+  }
+
+  if (secure_server)
+  {
+    secure_server.close();
+  }
+
+  done()
 }
 
 module.exports = {
   connectDataBase: connectDataBase,
   startServer: startServer,
+  closeServer: closeServer,
   app: app
 }
