@@ -47,7 +47,7 @@
     "express": "^4.16.3",
     "express-vue": "^5.8.2",
     "jsonwebtoken": "^8.4.0",
-    "mongoose": "^5.4.6",
+    "mongoose": "^5.7.5",
     "mongoose-validator": "^2.1.0",
     "nanoid": "^2.0.1",
     "nodemailer": "^5.1.1",
